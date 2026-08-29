@@ -11,8 +11,8 @@ controle de presença e roteirização dinâmica.
 ### Atividade 01
 
 - [Mapa de usuários e objetivos](documentos/atividade-01/mapa%20de%20usuários.png)
-- [Mapa de fluxos](documentos/atividade-01/mapa%20de%20usuários.png)
-- [Modelo de dados](documentos/atividade-01/mapa%20de%20usuários.png)
+- [Mapa de fluxos](documentos/atividade-01/mapa%20de%20fluxos.png)
+- [Modelo de dados](documentos/atividade-01/mapa%20de%20dados.png)
 
 ### Atividade 02 — Regras e Requisitos
 
