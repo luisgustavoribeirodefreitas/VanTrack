@@ -552,9 +552,10 @@ Registro de embarque armazenado.
 
 **Fluxos alternativos/exceções:**  
 - Aluno ausente não deve possuir check-in esperado.
+- Sem conectividade no momento do registro: o check-in deve ser armazenado localmente no dispositivo do motorista e sincronizado automaticamente ao reconectar, sem bloquear o registro.
 
 **Regras de negócio relacionadas:**  
-RN-010
+RN-010, RN-015
 
 **Prioridade:**  
 Alta
@@ -567,6 +568,7 @@ Proposto
 - Data e horário do embarque devem ser armazenados.
 - A localização do embarque deve ser armazenada quando disponível.
 - O status do aluno deve ser alterado para embarcado.
+- Um check-in registrado offline deve ser sincronizado automaticamente ao reconectar, sem perda de dados.
 
 **Casos de uso relacionados:**  
 Não definido nesta etapa.
@@ -615,9 +617,10 @@ Registro de desembarque armazenado.
 
 **Fluxos alternativos/exceções:**  
 - Sem embarque previamente registrado, o sistema não deve permitir o registro válido do desembarque.
+- Sem conectividade no momento do registro: o check-in deve ser armazenado localmente no dispositivo do motorista e sincronizado automaticamente ao reconectar, sem bloquear o registro.
 
 **Regras de negócio relacionadas:**  
-RN-010, RN-011
+RN-010, RN-011, RN-015
 
 **Prioridade:**  
 Alta
@@ -630,6 +633,7 @@ Proposto
 - Data e horário do desembarque devem ser armazenados.
 - A localização do desembarque deve ser armazenada quando disponível.
 - O status do aluno deve ser alterado para desembarcado.
+- Um check-in registrado offline deve ser sincronizado automaticamente ao reconectar, sem perda de dados.
 
 **Casos de uso relacionados:**  
 Não definido nesta etapa.
@@ -740,10 +744,10 @@ Notificações de atraso enviadas.
 Aviso registrado na rota.
 
 **Fluxos alternativos/exceções:**  
-Nenhum identificado.
+Atraso abaixo do limiar mínimo configurado: não é necessário aviso manual (aplica-se principalmente ao disparo automático do RF-015).
 
 **Regras de negócio relacionadas:**  
-RN-002, RN-012
+RN-002, RN-012, RN-014
 
 **Prioridade:**  
 Alta
@@ -803,9 +807,10 @@ Histórico da conversa atualizado.
 
 **Fluxos alternativos/exceções:**  
 - Usuário sem vínculo com a rota não poderá acessar a conversa.
+- Responsável tenta acessar conversa de van à qual seu aluno não está vinculado: o sistema deve bloquear o acesso.
 
 **Regras de negócio relacionadas:**  
-RN-001, RN-002
+RN-001, RN-002, RN-013
 
 **Prioridade:**  
 Média
@@ -817,6 +822,8 @@ Proposto
 - Usuários sem vínculo com a rota não devem acessar o chat correspondente.
 - Mensagens enviadas devem permanecer disponíveis no histórico.
 - Apenas usuários autorizados da mesma rota devem participar da conversa.
+- Um responsável não deve visualizar ou enviar mensagens em conversas de outros responsáveis, mesmo vinculados à mesma van.
+- O aviso geral de atraso (RF-012) é uma transmissão do motorista para todos os responsáveis, não configurando conversa privada entre responsáveis.
 
 **Casos de uso relacionados:**  
 Não definido nesta etapa.
@@ -825,4 +832,189 @@ Não definido nesta etapa.
 Não definido nesta etapa.
 
 **Casos de teste relacionados:**  
+Não definido nesta etapa.
+
+## RF-014 — Vincular motorista à van
+
+**Título:**
+Vinculação e substituição de motorista responsável.
+
+**Descrição:**
+O sistema deve permitir vincular um motorista responsável a uma van, encerrando automaticamente qualquer vínculo ativo anterior antes de ativar o novo.
+
+**Objetivo:**
+Garantir que cada van tenha exatamente um motorista ativo por vez, com rastreabilidade de quem opera o veículo.
+
+**Stakeholders:**
+Motorista e empresa de transporte.
+
+**Ator principal:**
+Empresa de transporte.
+
+**Pré-condições:**
+
+* Van cadastrada no sistema.
+* Motorista cadastrado no sistema.
+
+**Entradas:**
+Van, motorista e data/horário de início do vínculo.
+
+**Processamento esperado:**
+O sistema deve encerrar o vínculo ativo anterior da van (se existir), registrando a data/horário de encerramento, e então ativar o novo vínculo motorista–van.
+
+**Saídas/Resultados:**
+Vínculo motorista–van ativo atualizado.
+
+**Pós-condições:**
+A van passa a ter um único motorista ativo.
+
+**Fluxos alternativos/exceções:**
+
+* Tentativa de ativar um segundo motorista sem encerrar o vínculo anterior: o sistema deve encerrar automaticamente o vínculo anterior antes de ativar o novo.
+
+**Regras de negócio relacionadas:**
+RN-012
+
+**Prioridade:**
+Média
+
+**Status:**
+Proposto
+
+**Critérios de aceite:**
+
+* Uma van não deve possuir mais de um motorista ativo simultaneamente.
+* Ao vincular um novo motorista, o vínculo anterior deve ser encerrado antes da ativação do novo.
+* O histórico de vínculos (motorista, van, período) deve ficar registrado.
+
+**Casos de uso relacionados:**
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**
+Não definida nesta etapa.
+
+**Casos de teste relacionados:**
+Não definido nesta etapa.
+
+## RF-015 — Detectar atraso automático da rota
+
+**Título:**
+Detecção automática de desvio de horário.
+
+**Descrição:**
+O sistema deve comparar o horário previsto de chegada com o horário real/estimado da van e, ao ultrapassar um limiar configurado, disparar automaticamente o aviso de atraso (RF-012).
+
+**Objetivo:**
+Reduzir a dependência do acionamento manual do motorista para avisos de atraso.
+
+**Stakeholders:**
+Motorista, responsável, aluno e empresa de transporte.
+
+**Ator principal:**
+Sistema.
+
+**Pré-condições:**
+
+* Rota ativa.
+* Limiar mínimo de atraso configurado.
+
+**Entradas:**
+Horário previsto, horário real/estimado e limiar configurado.
+
+**Processamento esperado:**
+O sistema deve calcular o desvio entre horário previsto e real e, se o desvio ultrapassar o limiar configurado, disparar o fluxo de notificação de atraso (RF-012) automaticamente.
+
+**Saídas/Resultados:**
+Aviso de atraso disparado automaticamente, quando aplicável.
+
+**Pós-condições:**
+Atraso automático registrado como comunicado.
+
+**Fluxos alternativos/exceções:**
+
+* Desvio abaixo do limiar configurado: nenhuma notificação deve ser gerada.
+
+**Regras de negócio relacionadas:**
+RN-014
+
+**Prioridade:**
+Alta
+
+**Status:**
+Proposto
+
+**Critérios de aceite:**
+
+* Um desvio acima do limiar configurado deve disparar a notificação automaticamente, sem ação do motorista.
+* Um desvio abaixo do limiar não deve gerar notificação.
+* O motorista deve poder complementar o motivo do atraso após o disparo automático.
+
+**Casos de uso relacionados:**
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**
+Não definida nesta etapa.
+
+**Casos de teste relacionados:**
+Não definido nesta etapa.
+
+## RF-016 — Cadastrar aluno menor de idade
+
+**Título:**
+Cadastro de aluno menor com autorização do responsável legal.
+
+**Descrição:**
+O sistema deve permitir o cadastro de um aluno menor de idade, mas somente concluir e ativar esse cadastro após o registro da autorização do responsável legal.
+
+**Objetivo:**
+Garantir conformidade com a LGPD no tratamento de dados de menores.
+
+**Stakeholders:**
+Responsável legal, aluno e empresa de transporte.
+
+**Ator principal:**
+Responsável legal.
+
+**Pré-condições:**
+
+* Aluno identificado como menor de idade no cadastro.
+
+**Entradas:**
+Dados do aluno, indicador de menoridade e autorização do responsável legal.
+
+**Processamento esperado:**
+O sistema deve bloquear a ativação do cadastro do aluno menor até que a autorização do responsável legal seja registrada.
+
+**Saídas/Resultados:**
+Cadastro do aluno ativado somente após autorização registrada.
+
+**Pós-condições:**
+Aluno menor apto a ser vinculado a uma van/rota.
+
+**Fluxos alternativos/exceções:**
+
+* Aluno maior de idade: depende apenas do próprio consentimento, sem exigir esta autorização.
+
+**Regras de negócio relacionadas:**
+RN-016, RN-009
+
+**Prioridade:**
+Crítica
+
+**Status:**
+Proposto
+
+**Critérios de aceite:**
+
+* O cadastro de um aluno menor não deve ser ativado sem autorização do responsável legal registrada.
+* Alunos maiores de idade não devem exigir essa autorização.
+* Nenhuma coleta de dado pessoal ou de localização do menor deve ocorrer antes da autorização.
+
+**Casos de uso relacionados:**
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**
+Não definida nesta etapa.
+
+**Casos de teste relacionados:**
 Não definido nesta etapa.
