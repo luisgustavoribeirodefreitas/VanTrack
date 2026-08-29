@@ -56,6 +56,7 @@ responsáveis e motoristas.
 **Métrica/Critério mensurável:**  
 - 100% dos alunos menores de idade cadastrados devem possuir ao menos um responsável vinculado.
 - 100% das solicitações de acesso aos dados dos alunos devem validar o vínculo e a autorização do usuário antes da liberação das informações.
+- 100% dos alunos menores ativados devem possuir registro de autorização do responsável legal.
 
 **Escopo:**  
 Todo o sistema.
@@ -67,7 +68,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-RF-001, RF-002, RF-003, RF-004, RF-005, RF-009, RF-010, RF-011, RF-013
+RF-001, RF-002, RF-003, RF-004, RF-005, RF-009, RF-010, RF-011, RF-013, RF-016
 
 **Casos de teste relacionados:**  
 Não definido nesta etapa.
@@ -80,9 +81,7 @@ Não definido nesta etapa.
 Disponibilidade
 
 **Descrição:**  
-Quando não houver atualização da localização da van por perda de
-conectividade, o sistema deve manter visível a última localização conhecida
-e informar ao usuário que os dados estão desatualizados.
+Quando não houver atualização de dados em tempo real por perda de conectividade (localização, notificações de atraso, chat), o sistema deverá manter visível a última informação conhecida e informar ao usuário que os dados estão desatualizados, nunca apresentando uma localização desatualizada como se fosse atual.
 
 **Justificativa:**  
 O rastreamento depende de conectividade e podem existir trechos sem sinal.
@@ -92,7 +91,7 @@ O aviso de ausência de atualização deve ser exibido em até 30 segundos
 após a identificação da perda de conectividade.
 
 **Escopo:**  
-Rastreamento da van.
+Rastreamento da van, notificações de atraso e proximidade, e chat.
 
 **Prioridade:**  
 Alta
@@ -101,10 +100,40 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-RF-002
+RF-002, RF-003, RF-012, RF-013
 
 **Casos de teste relacionados:**  
 Não definido nesta etapa.
+
+## RNF-006 — Sincronização de check-ins offline
+
+**Categoria:**
+Confiabilidade
+
+**Descrição:**
+Check-ins de embarque e desembarque registrados sem conectividade devem ser sincronizados automaticamente ao reconectar.
+
+**Justificativa:**
+O motorista pode operar trechos sem sinal e não deve ficar impedido de registrar embarque/desembarque.
+
+**Métrica/Critério mensurável:**
+100% dos check-ins registrados offline devem ser sincronizados em até 5 minutos após o restabelecimento da conectividade.
+
+**Escopo:**
+Check-in de embarque e desembarque.
+
+**Prioridade:**
+Alta
+
+**Status:**
+Proposto
+
+**Requisitos relacionados:**
+RF-009, RF-010
+
+**Casos de teste relacionados:**
+Não definido nesta etapa.
+
 
 ---
 
