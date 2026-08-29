@@ -42,6 +42,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-001, RF-013, RNF-002
 
+**Observações:**  
+Nenhuma.
+
 ---
 
 ## RN-002 — Restrição de acesso aos dados do aluno
@@ -80,6 +83,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-001, RF-002, RF-003, RF-011, RF-012, RF-013, RNF-002
 
+**Observações:**  
+Nenhuma.
+
 ---
 
 ## RN-003 — Consentimento para tratamento de localização
@@ -88,8 +94,9 @@ RF-001, RF-002, RF-003, RF-011, RF-012, RF-013, RNF-002
 Consentimento obrigatório para utilização de dados de localização.
 
 **Descrição:**  
-Dados de localização somente poderão ser utilizados mediante autorização
-do usuário responsável pelo tratamento desses dados.
+Os dados de localização somente poderão ser coletados, utilizados ou
+compartilhados mediante consentimento do titular dos dados ou de seu
+responsável legal, quando aplicável.
 
 **Origem:**  
 Necessidade de proteção de dados pessoais e de localização.
@@ -101,11 +108,11 @@ Responsável, aluno, motorista e empresa de transporte.
 Aplicada antes do início do compartilhamento de localização.
 
 **Regra:**  
-O sistema não deverá compartilhar dados de localização sem que exista
-consentimento registrado quando aplicável.
+O sistema não deverá iniciar o compartilhamento de localização sem que
+exista consentimento válido registrado.
 
 **Exceções:**  
-A definir de acordo com o perfil do usuário e legislação aplicável.
+Nenhuma definida no escopo atual do VanTrack.
 
 **Dados envolvidos:**  
 Usuário, consentimento, data e horário do consentimento.
@@ -118,6 +125,9 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-002, RF-003, RNF-002
+
+**Observações:**  
+Nenhuma.
 
 ---
 
@@ -159,6 +169,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-004, RF-007
 
+**Observações:**  
+Nenhuma.
+
 ---
 
 ## RN-005 — Roteirização baseada nas presenças
@@ -180,9 +193,12 @@ Motorista, aluno, responsável e empresa de transporte.
 Aplicada durante a geração ou recálculo da rota.
 
 **Regra:**  
-A rota deve ser calculada considerando apenas os alunos que confirmaram
-presença dentro do prazo estabelecido e a localização inicial identificada
-do motorista.
+Na geração inicial, a rota deve ser calculada considerando apenas os alunos
+que confirmaram presença dentro do prazo estabelecido e a localização inicial
+identificada do motorista.
+
+Nos recálculos realizados durante o trajeto, deve ser considerada a localização
+atual da van.
 
 Alunos considerados ausentes não devem gerar pontos de parada.
 
@@ -191,7 +207,7 @@ Caso nenhum aluno tenha presença confirmada, nenhuma parada de aluno
 deverá ser incluída na rota.
 
 **Dados envolvidos:**  
-Alunos confirmados, pontos de parada, localização inicial do motorista e rota.
+Alunos confirmados, pontos de parada, localização inicial do motorista, localização atual da van e rota.
 
 **Prioridade:**  
 Alta
@@ -202,6 +218,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-004, RF-007, RF-008
 
+**Observações:**  
+Nenhuma.
+
 ---
 
 ## RN-006 — Cancelamento da utilização do transporte
@@ -211,7 +230,8 @@ Cancelamento da presença.
 
 **Descrição:**  
 O aluno ou responsável pode informar que não utilizará mais o transporte,
-mesmo após ter confirmado presença.
+mesmo após ter confirmado presença, desde que o embarque ainda não tenha
+sido registrado.
 
 **Origem:**  
 Necessidade de permitir alterações decorrentes de imprevistos.
@@ -223,7 +243,8 @@ Aluno, responsável e motorista.
 Aplicada quando já existe uma confirmação de presença.
 
 **Regra:**  
-O aluno ou responsável poderá cancelar a utilização do transporte a qualquer momento.
+O aluno ou responsável poderá cancelar a utilização do transporte a qualquer
+momento antes do registro de embarque.
 
 Após o cancelamento, o aluno deverá ser considerado ausente.
 
@@ -242,6 +263,8 @@ Proposto
 **Requisitos relacionados:**  
 RF-005, RF-006, RF-008
 
+**Observações:**  
+Nenhuma.
 ---
 
 ## RN-007 — Notificação de cancelamento
@@ -280,6 +303,8 @@ Proposto
 **Requisitos relacionados:**  
 RF-006
 
+**Observações:**  
+Nenhuma.
 ---
 
 ## RN-008 — Recálculo da rota após cancelamento
@@ -307,7 +332,7 @@ e a rota deverá ser recalculada considerando os alunos restantes.
 Se não houver mais alunos confirmados, a rota não deverá possuir paradas de alunos.
 
 **Dados envolvidos:**  
-Aluno, pontos de parada, rota e localização do motorista.
+Aluno, pontos de parada, rota e localização atual da van.
 
 **Prioridade:**  
 Alta
@@ -318,6 +343,8 @@ Proposto
 **Requisitos relacionados:**  
 RF-008
 
+**Observações:**  
+Nenhuma.
 ---
 
 ## RN-009 — Vínculo obrigatório entre aluno e responsável
@@ -355,6 +382,8 @@ Proposto
 **Requisitos relacionados:**  
 RF-001, RF-011, RNF-002
 
+**Observações:**  
+Nenhuma.
 ---
 
 ## RN-010 — Confirmação de embarque e desembarque
@@ -392,6 +421,8 @@ Proposto
 **Requisitos relacionados:**  
 RF-009, RF-010, RF-011, RNF-005
 
+**Observações:**  
+Nenhuma.
 ---
 
 ## RN-011 — Sequência de embarque e desembarque
@@ -429,6 +460,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-010, RNF-005
 
+**Observações:**  
+Nenhuma.
+
 ---
 
 ## RN-012 — Motorista ativo da van
@@ -465,3 +499,6 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-002, RF-007, RF-012
+
+**Observações:**  
+Nenhuma.
