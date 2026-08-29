@@ -40,7 +40,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-001, RF-013
 
 ---
 
@@ -78,7 +78,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-001, RF-002, RF-003, RF-011, RF-012, RF-013
 
 ---
 
@@ -117,7 +117,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-002, RF-003
 
 ---
 
@@ -157,7 +157,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-004, RF-007
 
 ---
 
@@ -200,7 +200,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-004, RF-007, RF-008
 
 ---
 
@@ -240,7 +240,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-005, RF-006, RF-008
 
 ---
 
@@ -278,7 +278,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-006
 
 ---
 
@@ -316,7 +316,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-008
 
 ---
 
@@ -353,7 +353,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-001, RF-011
 
 ---
 
@@ -390,7 +390,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-009, RF-010, RF-011
 
 ---
 
@@ -427,7 +427,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-010
 
 ---
 
@@ -464,4 +464,4 @@ Média
 Proposto
 
 **Requisitos relacionados:**  
-A definir.
+RF-002, RF-007, RF-012
