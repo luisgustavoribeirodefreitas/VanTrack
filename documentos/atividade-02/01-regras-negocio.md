@@ -40,7 +40,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-RF-001, RF-013
+RF-001, RF-013, RNF-002
 
 ---
 
@@ -78,7 +78,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-RF-001, RF-002, RF-003, RF-011, RF-012, RF-013
+RF-001, RF-002, RF-003, RF-011, RF-012, RF-013, RNF-002
 
 ---
 
@@ -117,7 +117,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-RF-002, RF-003
+RF-002, RF-003, RNF-002
 
 ---
 
@@ -353,7 +353,7 @@ Crítica
 Proposto
 
 **Requisitos relacionados:**  
-RF-001, RF-011
+RF-001, RF-011, RNF-002
 
 ---
 
@@ -390,7 +390,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-RF-009, RF-010, RF-011
+RF-009, RF-010, RF-011, RNF-005
 
 ---
 
@@ -427,7 +427,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-RF-010
+RF-010, RNF-005
 
 ---
 
