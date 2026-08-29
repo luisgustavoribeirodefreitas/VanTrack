@@ -12,7 +12,7 @@ Vinculação por código de acesso.
 
 **Descrição:**  
 O sistema deve permitir que o usuário se vincule à empresa de transporte
-por meio de um código válido fornecido pela empresa.
+por meio de um código fornecido pela empresa.
 
 **Objetivo:**  
 Garantir que somente usuários autorizados tenham acesso às vans,
@@ -26,14 +26,13 @@ Responsável/aluno.
 
 **Pré-condições:**  
 - Usuário cadastrado no sistema.
-- Código de vinculação válido.
 
 **Entradas:**  
 Código de vinculação.
 
 **Processamento esperado:**  
-O sistema deve validar o código informado e associar o usuário
-à empresa, van e/ou aluno correspondente.
+O sistema deve validar o código informado e, caso seja válido,
+associar o usuário à empresa, van e/ou aluno correspondente.
 
 **Saídas/Resultados:**  
 Usuário vinculado aos dados autorizados.
@@ -55,9 +54,18 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- Código válido realiza a vinculação corretamente.
-- Código inválido não permite acesso.
-- O usuário não recebe acesso a alunos não vinculados.
+- Um código válido deve vincular o usuário à empresa, van e/ou aluno correspondente.
+- Um código inválido, expirado ou desativado não deve permitir a vinculação.
+- O usuário não deve receber acesso a alunos não vinculados.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -99,7 +107,7 @@ A última localização recebida permanece registrada.
 
 **Fluxos alternativos/exceções:**  
 - Perda de conectividade: exibir a última localização conhecida.
-- Usuário sem autorização: bloquear visualização.
+- Usuário sem autorização: bloquear a visualização.
 
 **Regras de negócio relacionadas:**  
 RN-002, RN-003, RN-012
@@ -111,9 +119,18 @@ Crítica
 Proposto
 
 **Critérios de aceite:**  
-- Apenas usuários autorizados visualizam a van.
-- A posição apresentada deve ser atualizada durante a operação.
-- Em perda de sinal, a última posição conhecida deve permanecer disponível.
+- Apenas usuários autorizados devem visualizar a localização da van.
+- A atualização da localização deve respeitar o intervalo definido no RNF-001.
+- Em caso de perda de conectividade, deve ser exibida a última localização conhecida conforme RNF-003.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -141,11 +158,11 @@ Sistema.
 - Usuário vinculado à rota.
 
 **Entradas:**  
-Localização da van, localização do ponto e estimativa de chegada.
+Localização da van, localização do ponto e limite de proximidade configurado.
 
 **Processamento esperado:**  
-O sistema deve calcular a proximidade da van e disparar uma notificação
-quando atingir o limite configurado.
+O sistema deve calcular a estimativa de chegada da van e disparar uma
+notificação quando atingir o limite de proximidade configurado.
 
 **Saídas/Resultados:**  
 Notificação de proximidade enviada.
@@ -166,9 +183,19 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- A notificação deve ser automática.
+- A notificação deve ser disparada automaticamente.
 - A mesma aproximação não deve gerar notificações duplicadas.
-- Somente o responsável/aluno correspondente recebe o aviso.
+- Somente o responsável/aluno correspondente deve receber o aviso.
+- A notificação deve utilizar o limite de proximidade configurado.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -219,9 +246,18 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- Confirmações dentro do prazo são registradas.
-- Aluno não confirmado no prazo é considerado ausente.
-- Alunos ausentes não entram na rota.
+- Confirmações realizadas dentro do prazo devem ser registradas.
+- Aluno não confirmado no prazo deve ser considerado ausente.
+- Alunos ausentes não devem ser incluídos na rota.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -232,7 +268,7 @@ Cancelamento de presença.
 
 **Descrição:**  
 O sistema deve permitir que o aluno ou responsável cancele uma presença
-previamente confirmada a qualquer momento.
+previamente confirmada, desde que o embarque ainda não tenha sido registrado.
 
 **Objetivo:**  
 Permitir que imprevistos sejam refletidos na operação da rota.
@@ -244,13 +280,15 @@ Aluno, responsável e motorista.
 Aluno/responsável.
 
 **Pré-condições:**  
-Presença previamente confirmada.
+- Presença previamente confirmada.
+- Embarque ainda não registrado.
 
 **Entradas:**  
 Aluno e solicitação de cancelamento.
 
 **Processamento esperado:**  
-O sistema deve alterar o status do aluno para ausente e registrar o cancelamento.
+O sistema deve alterar o status do aluno para ausente e registrar
+a data e o horário do cancelamento.
 
 **Saídas/Resultados:**  
 Presença cancelada.
@@ -259,7 +297,7 @@ Presença cancelada.
 O aluno deixa de ser considerado na rota.
 
 **Fluxos alternativos/exceções:**  
-Nenhuma identificada.
+- Caso o embarque já tenha sido registrado, o sistema não deve permitir o cancelamento.
 
 **Regras de negócio relacionadas:**  
 RN-006
@@ -271,8 +309,18 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- O cancelamento pode ser realizado após uma confirmação.
+- O cancelamento deve ser permitido enquanto não existir embarque registrado.
 - Após o cancelamento, o aluno deve ser marcado como ausente.
+- O cancelamento não deve ser permitido após o registro de embarque.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -295,13 +343,15 @@ Motorista, aluno e responsável.
 Sistema.
 
 **Pré-condições:**  
-Existência de uma presença previamente confirmada e posteriormente cancelada.
+- Existência de uma presença previamente confirmada.
+- Presença posteriormente cancelada.
 
 **Entradas:**  
 Cancelamento do aluno e rota correspondente.
 
 **Processamento esperado:**  
-O sistema deve identificar o motorista da rota e enviar uma notificação.
+O sistema deve identificar o motorista responsável pela rota e enviar
+uma notificação sobre o cancelamento.
 
 **Saídas/Resultados:**  
 Motorista notificado.
@@ -310,7 +360,7 @@ Motorista notificado.
 Cancelamento registrado como comunicado.
 
 **Fluxos alternativos/exceções:**  
-Nenhuma identificada.
+Nenhum identificado.
 
 **Regras de negócio relacionadas:**  
 RN-006, RN-007
@@ -322,7 +372,17 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- Todo cancelamento de presença confirmada gera uma notificação ao motorista correspondente.
+- Todo cancelamento válido de presença confirmada deve gerar uma notificação ao motorista correspondente.
+- A notificação deve identificar o aluno cujo transporte foi cancelado.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -346,7 +406,7 @@ Sistema.
 
 **Pré-condições:**  
 - Prazo de confirmação encerrado.
-- Pontos dos alunos cadastrados.
+- Pontos de parada dos alunos cadastrados.
 - Localização inicial do motorista disponível.
 
 **Entradas:**  
@@ -363,7 +423,7 @@ Rota do dia disponibilizada ao motorista.
 Rota pronta para início do trajeto.
 
 **Fluxos alternativos/exceções:**  
-- Nenhum aluno confirmado: nenhuma parada de aluno será gerada.
+- Nenhum aluno confirmado: nenhuma parada de aluno deve ser gerada.
 
 **Regras de negócio relacionadas:**  
 RN-004, RN-005, RN-012
@@ -375,9 +435,19 @@ Crítica
 Proposto
 
 **Critérios de aceite:**  
-- Alunos ausentes não aparecem como parada.
-- Todos os alunos confirmados aparecem na rota.
-- A localização inicial do motorista é considerada no cálculo.
+- Alunos ausentes não devem aparecer como parada.
+- Todos os alunos confirmados devem aparecer na rota.
+- A localização inicial do motorista deve ser considerada no cálculo.
+- A rota deve ser disponibilizada ao motorista antes do início do trajeto.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -401,19 +471,21 @@ Sistema.
 
 **Pré-condições:**  
 - Rota já gerada.
-- Aluno presente na rota realizou cancelamento.
+- Aluno presente na rota realizou um cancelamento válido.
 
 **Entradas:**  
-Rota atual, cancelamento e alunos ainda confirmados.
+Rota atual, cancelamento, alunos ainda confirmados e localização atual da van.
 
 **Processamento esperado:**  
-O sistema deve remover o ponto cancelado e calcular novamente o percurso.
+O sistema deve remover o ponto correspondente ao aluno cancelado e
+recalcular o percurso a partir da localização atual da van, considerando
+os alunos ainda confirmados.
 
 **Saídas/Resultados:**  
 Nova rota disponibilizada ao motorista.
 
 **Pós-condições:**  
-Motorista passa a visualizar a rota atualizada.
+O motorista passa a visualizar a rota atualizada.
 
 **Fluxos alternativos/exceções:**  
 - Caso não restem alunos confirmados, a rota ficará sem paradas de alunos.
@@ -428,9 +500,19 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- O aluno cancelado não permanece na rota.
-- Os demais alunos confirmados continuam presentes.
-- A nova rota é disponibilizada ao motorista.
+- O aluno cancelado não deve permanecer na rota.
+- Os demais alunos confirmados devem continuar presentes.
+- O recálculo deve considerar a localização atual da van.
+- A nova rota deve ser disponibilizada ao motorista.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -459,7 +541,8 @@ Motorista.
 Aluno, data, horário e localização.
 
 **Processamento esperado:**  
-O sistema deve registrar o embarque do aluno.
+O sistema deve registrar o embarque do aluno com data, horário e
+localização, quando disponível.
 
 **Saídas/Resultados:**  
 Aluno marcado como embarcado.
@@ -480,9 +563,19 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- O motorista consegue registrar o embarque.
-- Data e horário são armazenados.
-- O status do aluno muda para embarcado.
+- O motorista deve conseguir registrar o embarque.
+- Data e horário do embarque devem ser armazenados.
+- A localização do embarque deve ser armazenada quando disponível.
+- O status do aluno deve ser alterado para embarcado.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -505,13 +598,14 @@ Motorista, aluno e responsável.
 Motorista.
 
 **Pré-condições:**  
-Embarque previamente registrado para o mesmo trajeto.
+- Embarque previamente registrado para o mesmo trajeto.
 
 **Entradas:**  
 Aluno, data, horário e localização.
 
 **Processamento esperado:**  
-O sistema deve validar o embarque anterior e registrar o desembarque.
+O sistema deve validar o embarque anterior e registrar o desembarque
+com data, horário e localização, quando disponível.
 
 **Saídas/Resultados:**  
 Aluno marcado como desembarcado.
@@ -520,7 +614,7 @@ Aluno marcado como desembarcado.
 Registro de desembarque armazenado.
 
 **Fluxos alternativos/exceções:**  
-- Sem embarque registrado: impedir ou alertar sobre o registro inválido.
+- Sem embarque previamente registrado, o sistema não deve permitir o registro válido do desembarque.
 
 **Regras de negócio relacionadas:**  
 RN-010, RN-011
@@ -532,8 +626,19 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- Não permitir desembarque válido sem embarque anterior.
-- Data e horário são registrados.
+- O sistema não deve permitir um desembarque válido sem embarque anterior.
+- Data e horário do desembarque devem ser armazenados.
+- A localização do desembarque deve ser armazenada quando disponível.
+- O status do aluno deve ser alterado para desembarcado.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -556,19 +661,24 @@ Responsável, motorista e aluno.
 Sistema.
 
 **Pré-condições:**  
-Check-in de embarque ou desembarque registrado.
+- Check-in de embarque ou desembarque registrado.
+- Responsável vinculado ao aluno.
 
 **Entradas:**  
 Registro de check-in e responsável vinculado.
 
 **Processamento esperado:**  
-O sistema deve identificar o responsável correspondente e enviar a notificação.
+O sistema deve identificar os responsáveis vinculados ao aluno e enviar
+a notificação correspondente ao evento registrado.
 
 **Saídas/Resultados:**  
 Notificação enviada ao responsável.
 
 **Pós-condições:**  
 Evento registrado como comunicado.
+
+**Fluxos alternativos/exceções:**  
+Nenhum identificado.
 
 **Regras de negócio relacionadas:**  
 RN-002, RN-009, RN-010
@@ -580,9 +690,18 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- Embarque gera notificação.
-- Desembarque gera notificação.
-- Apenas os responsáveis vinculados ao aluno recebem o aviso.
+- O registro de embarque deve gerar uma notificação.
+- O registro de desembarque deve gerar uma notificação.
+- Apenas os responsáveis vinculados ao aluno devem receber o aviso.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -605,13 +724,14 @@ Motorista, responsável e aluno.
 Motorista.
 
 **Pré-condições:**  
-Rota ativa.
+- Rota ativa.
 
 **Entradas:**  
 Aviso de atraso e, quando informado, motivo ou nova previsão.
 
 **Processamento esperado:**  
-O sistema deve identificar os responsáveis da rota e enviar o aviso.
+O sistema deve identificar os responsáveis vinculados aos alunos da rota
+ativa e enviar o aviso simultaneamente.
 
 **Saídas/Resultados:**  
 Notificações de atraso enviadas.
@@ -620,7 +740,7 @@ Notificações de atraso enviadas.
 Aviso registrado na rota.
 
 **Fluxos alternativos/exceções:**  
-Nenhuma identificada.
+Nenhum identificado.
 
 **Regras de negócio relacionadas:**  
 RN-002, RN-012
@@ -632,8 +752,18 @@ Alta
 Proposto
 
 **Critérios de aceite:**  
-- O motorista não precisa selecionar cada responsável individualmente.
-- Apenas os responsáveis vinculados à rota recebem o aviso.
+- O motorista não deve precisar selecionar cada responsável individualmente.
+- Apenas os responsáveis vinculados à rota ativa devem receber o aviso.
+- O aviso deve ser enviado a todos os responsáveis correspondentes em uma única ação do motorista.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -656,14 +786,14 @@ Motorista, responsável e aluno.
 Motorista, responsável ou aluno.
 
 **Pré-condições:**  
-Usuário vinculado à rota.
+- Usuário vinculado à rota.
 
 **Entradas:**  
 Mensagem e participante autorizado.
 
 **Processamento esperado:**  
 O sistema deve armazenar e entregar mensagens apenas entre usuários
-autorizados daquela rota.
+autorizados e vinculados à mesma rota.
 
 **Saídas/Resultados:**  
 Mensagem entregue e registrada.
@@ -684,5 +814,15 @@ Média
 Proposto
 
 **Critérios de aceite:**  
-- Usuários sem vínculo não acessam o chat.
-- Mensagens enviadas ficam disponíveis no histórico.
+- Usuários sem vínculo com a rota não devem acessar o chat correspondente.
+- Mensagens enviadas devem permanecer disponíveis no histórico.
+- Apenas usuários autorizados da mesma rota devem participar da conversa.
+
+**Casos de uso relacionados:**  
+Não definido nesta etapa.
+
+**Tarefas relacionadas:**  
+Não definido nesta etapa.
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.

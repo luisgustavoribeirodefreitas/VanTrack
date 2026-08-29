@@ -35,6 +35,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-002, RF-003
 
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
+
 ---
 
 ## RNF-002 — Proteção de dados pessoais e de menores
@@ -51,8 +54,8 @@ O VanTrack utiliza informações pessoais e de localização de alunos,
 responsáveis e motoristas.
 
 **Métrica/Critério mensurável:**  
-100% dos alunos menores de idade cadastrados devem possuir responsável
-vinculado e os dados protegidos por controle de acesso.
+- 100% dos alunos menores de idade cadastrados devem possuir ao menos um responsável vinculado.
+- 100% das solicitações de acesso aos dados dos alunos devem validar o vínculo e a autorização do usuário antes da liberação das informações.
 
 **Escopo:**  
 Todo o sistema.
@@ -65,6 +68,9 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-001, RF-002, RF-003, RF-004, RF-005, RF-009, RF-010, RF-011, RF-013
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -97,6 +103,9 @@ Proposto
 **Requisitos relacionados:**  
 RF-002
 
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
+
 ---
 
 ## RNF-004 — Compatibilidade multiplataforma
@@ -112,8 +121,8 @@ nas plataformas definidas para o VanTrack.
 O projeto prevê utilização em Android, iOS e Web.
 
 **Métrica/Critério mensurável:**  
-As funcionalidades previstas para o MVP devem ser testadas e executáveis
-nas plataformas Android, iOS e Web antes da conclusão da versão.
+100% das funcionalidades previstas para o MVP devem ser testáveis e
+executáveis nas plataformas Android, iOS e Web antes da conclusão da versão.
 
 **Escopo:**  
 Todo o sistema.
@@ -126,6 +135,9 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-001 a RF-013
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
 
 ---
 
@@ -158,3 +170,6 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-009, RF-010, RF-012
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
