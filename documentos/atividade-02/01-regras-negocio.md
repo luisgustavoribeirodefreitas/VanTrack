@@ -317,3 +317,151 @@ Proposto
 
 **Requisitos relacionados:**  
 A definir.
+
+---
+
+## RN-009 — Vínculo obrigatório entre aluno e responsável
+
+**Título:**  
+Vínculo do aluno menor de idade com responsável.
+
+**Descrição:**  
+Todo aluno menor de idade cadastrado no VanTrack deve estar vinculado a pelo menos um responsável.
+
+**Origem:**  
+Modelo de usuários do VanTrack e necessidade de controle dos dados de menores.
+
+**Stakeholders envolvidos:**  
+Aluno, responsável e empresa de transporte.
+
+**Condição:**  
+Aplicada durante o cadastro e utilização do sistema por alunos menores de idade.
+
+**Regra:**  
+Um aluno menor de idade não poderá utilizar o sistema sem possuir pelo menos um responsável vinculado.
+
+**Exceções:**  
+Alunos maiores de idade poderão utilizar o sistema sem responsável obrigatório.
+
+**Dados envolvidos:**  
+Aluno, responsável e vínculo responsável-aluno.
+
+**Prioridade:**  
+Crítica
+
+**Status:**  
+Proposto
+
+**Requisitos relacionados:**  
+A definir.
+
+---
+
+## RN-010 — Confirmação de embarque e desembarque
+
+**Título:**  
+Registro obrigatório de embarque e desembarque.
+
+**Descrição:**  
+A utilização do transporte por um aluno deve possuir registros de embarque e desembarque.
+
+**Origem:**  
+Necessidade de informar aos responsáveis a situação do aluno durante o transporte.
+
+**Stakeholders envolvidos:**  
+Motorista, aluno e responsável.
+
+**Condição:**  
+Aplicada aos alunos presentes na rota do dia.
+
+**Regra:**  
+O motorista deverá confirmar o embarque e o desembarque de cada aluno que utilizar o transporte.
+
+**Exceções:**  
+Alunos considerados ausentes não devem possuir registros de embarque ou desembarque naquele trajeto.
+
+**Dados envolvidos:**  
+Aluno, motorista, rota, horário de embarque e horário de desembarque.
+
+**Prioridade:**  
+Alta
+
+**Status:**  
+Proposto
+
+**Requisitos relacionados:**  
+A definir.
+
+---
+
+## RN-011 — Sequência de embarque e desembarque
+
+**Título:**  
+Desembarque condicionado ao embarque.
+
+**Descrição:**  
+O registro das etapas do transporte deve respeitar a sequência da utilização da van.
+
+**Origem:**  
+Fluxo de acompanhamento do aluno.
+
+**Stakeholders envolvidos:**  
+Motorista, aluno e responsável.
+
+**Condição:**  
+Aplicada no registro do desembarque.
+
+**Regra:**  
+O desembarque de um aluno somente poderá ser confirmado caso exista um embarque previamente registrado para o mesmo trajeto.
+
+**Exceções:**  
+Nenhuma identificada.
+
+**Dados envolvidos:**  
+Aluno, embarque, desembarque e rota.
+
+**Prioridade:**  
+Alta
+
+**Status:**  
+Proposto
+
+**Requisitos relacionados:**  
+A definir.
+
+---
+
+## RN-012 — Motorista ativo da van
+
+**Título:**  
+Vínculo entre van e motorista responsável.
+
+**Descrição:**  
+Cada van em operação deve possuir um motorista responsável identificado.
+
+**Origem:**  
+Modelo de dados do VanTrack.
+
+**Stakeholders envolvidos:**  
+Motorista e empresa de transporte.
+
+**Condição:**  
+Aplicada enquanto uma van estiver em operação.
+
+**Regra:**  
+Uma van não poderá possuir mais de um motorista ativo simultaneamente.
+
+**Exceções:**  
+A troca de motorista é permitida desde que o vínculo anterior seja encerrado antes da ativação do novo motorista.
+
+**Dados envolvidos:**  
+Van, motorista e vínculo de operação.
+
+**Prioridade:**  
+Média
+
+**Status:**  
+Proposto
+
+**Requisitos relacionados:**  
+A definir.
