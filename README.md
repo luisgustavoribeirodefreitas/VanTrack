@@ -1,11 +1,11 @@
 # VanTrack
 
 ## Alunos
-RA143379 - Luís Gustavo Ribeiro de Freitas
-RA145121 - Pedro Augusto dos Santos Watermann
-RA145116 - Gustavo Bragada Cavalcanti
-RA133649 - Amanda da Silva Palacio
-RA143653 - Vinicius Garcia Del Cielo
+- RA143379: Luís Gustavo Ribeiro de Freitas
+- RA145121: Pedro Augusto dos Santos Watermann
+- RA145116: Gustavo Bragada Cavalcanti
+- RA133649: Amanda da Silva Palacio
+- RA143653: Vinicius Garcia Del Cielo
 
 Aplicativo de gestão e acompanhamento de vans escolares.
 
