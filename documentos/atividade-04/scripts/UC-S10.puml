@@ -1,0 +1,34 @@
+@startuml UC-S10
+title UC-S10 — Notificar Proximidade da Van (automático)
+skinparam sequenceMessageAlign center
+autonumber
+
+participant "Serviço de Geolocalização" as Geo
+participant "Sistema" as S
+database "Banco de Dados" as DB
+participant "Serviço de Notificação" as Push
+actor "Responsável / Aluno" as U
+
+Geo -> S : Nova localização da van
+S -> Geo : calcularEstimativaChegada(pontos de parada pendentes)
+Geo --> S : estimativas
+S -> S : algum ponto atingiu o limite de proximidade?
+
+alt A2 — Limite não atingido
+    S -> S : aguarda a próxima atualização de localização
+else limite atingido
+    S -> DB : aviso já enviado para esta aproximação?
+    DB --> S : resultado
+
+    alt A1 — Aviso já enviado
+        S -> S : não envia novamente
+    else Caminho de sucesso — aviso ainda não enviado
+        opt E1 — Localização desatualizada
+            S -> S : acrescenta "estimativa pode estar imprecisa" à mensagem
+        end
+        S -> Push : enviarPush(usuário, "Van próxima")
+        Push --> U : Notificação de proximidade
+        S -> DB : registrar o envio
+    end
+end
+@enduml

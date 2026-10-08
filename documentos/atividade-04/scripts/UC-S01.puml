@@ -1,0 +1,37 @@
+@startuml UC-S01
+title UC-S01 — Vincular Usuário à Empresa
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+U -> App : Escolhe "Vincular à empresa"
+App --> U : Solicita o código de vinculação
+U -> App : Informa o código
+App -> API : validarCodigo(codigo)
+API -> DB : buscarCodigo(codigo)
+DB --> API : dados do código
+
+alt Caminho de sucesso — código válido e ativo
+    API -> DB : identificar empresa, van e/ou aluno do código
+    DB --> API : empresa, van, aluno
+
+    opt A1 — Responsável com mais de um aluno
+        API -> DB : adicionar o novo aluno mantendo os vínculos anteriores
+    end
+
+    API -> DB : registrarVinculo(usuario, empresa, van, aluno)
+    DB --> API : ok
+    API --> App : vínculo criado
+    App --> U : Exibe a van/rota vinculada e libera as funcionalidades
+else E1 — Código inválido
+    API --> App : erro "código inválido"
+    App --> U : Informa o erro e volta a solicitar o código
+else E2 — Código expirado ou desativado
+    API --> App : erro "código expirado/desativado"
+    App --> U : Orienta a solicitar novo código à empresa
+end
+@enduml

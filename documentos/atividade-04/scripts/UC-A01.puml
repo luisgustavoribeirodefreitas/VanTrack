@@ -1,0 +1,28 @@
+@startuml UC-A01
+title UC-A01 — Manter Cadastro Base (Abstrato)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Usuário" as U
+participant "Módulo de cadastro" as S
+database "Banco de Dados" as DB
+
+note over U, DB : Padrão genérico — especializado por casos de uso\nconcretos, como UC-C01 (Manter Aluno)
+
+U -> S : Acessa o módulo de cadastro
+S -> DB : listarRegistros(usuario)
+DB --> S : registros permitidos
+S --> U : Exibe a listagem
+
+U -> S : Escolhe criar, editar ou desativar
+U -> S : Informa os dados / seleciona o registro
+S -> S : Valida os dados
+
+alt Caminho de sucesso — dados válidos
+    S -> DB : salvar alteração (criar, atualizar ou desativar)
+    DB --> S : ok
+    S --> U : Exibe a listagem atualizada
+else Dados inválidos
+    S --> U : Informa os erros e mantém os dados preenchidos
+end
+@enduml

@@ -1,0 +1,26 @@
+@startuml UC-S11
+title UC-S11 — Detectar Atraso Automaticamente (automático)
+skinparam sequenceMessageAlign center
+autonumber
+
+participant "Sistema" as S
+database "Banco de Dados" as DB
+participant "Serviço de Geolocalização" as Geo
+actor "Motorista" as M
+
+note over S : Gatilho: atualização periódica\nda posição/estimativa da van
+
+S -> Geo : obterEstimativaDeChegada(rota)
+Geo --> S : horário estimado
+S -> DB : buscar horário previsto de chegada
+DB --> S : horário previsto
+S -> S : calcula o desvio (estimado − previsto)
+
+alt A1 — Desvio abaixo do limiar
+    S -> S : nenhuma notificação é gerada
+else Caminho de sucesso — desvio acima do limiar
+    ref over S, DB : «include» UC-I03 — Notificar Responsáveis sobre Atraso
+    S -> DB : registrar atraso como comunicado
+    S --> M : Avisa o motorista (pode complementar o motivo — UC-S07, A1)
+end
+@enduml

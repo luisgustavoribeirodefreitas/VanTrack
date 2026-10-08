@@ -1,0 +1,20 @@
+@startuml UC-I01
+title UC-I01 — Notificar Motorista sobre Cancelamento («include» de UC-S04)
+skinparam sequenceMessageAlign center
+autonumber
+
+participant "Sistema" as S
+database "Banco de Dados" as DB
+participant "Serviço de Notificação" as Push
+actor "Motorista" as M
+
+note over S : Gatilho: cancelamento registrado no UC-S04
+
+S -> DB : buscarRotaDoAluno(aluno)
+DB --> S : rota
+S -> DB : buscarMotoristaAtivo(van) (RN-012)
+DB --> S : motorista
+S -> Push : enviarPush(motorista, "Aluno X cancelou")
+Push --> M : Notificação de cancelamento
+S -> DB : registrar o cancelamento como comunicado (RN-007)
+@enduml

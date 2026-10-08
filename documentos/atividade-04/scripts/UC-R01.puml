@@ -1,0 +1,36 @@
+@startuml UC-R01
+title UC-R01 — Confirmar Presença pelo Aplicativo (Real)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as U
+boundary "Tela Início" as T1
+boundary "Tela Presença do dia" as T2
+participant "Servidor" as API
+
+U -> T1 : Abre o aplicativo
+T1 -> API : buscarAlunosVinculados()
+API --> T1 : alunos e horário limite
+T1 --> U : Exibe um card por aluno com o horário limite
+
+U -> T1 : Toca no card do aluno
+T1 -> T2 : Abre "Presença do dia" (trajetos "Ida" e "Volta")
+
+alt Caminho de sucesso — prazo aberto e com conexão
+    U -> T2 : Marca os trajetos e toca em "Confirmar"
+    T2 -> API : confirmarPresenca(aluno, trajetos)
+    API --> T2 : ok
+    T2 --> U : Mensagem "Presença confirmada"
+    T2 -> T1 : Atualiza o card para o status verde "Vai hoje"
+else A1 — Cancelar
+    U -> T2 : Toca em "Não vou mais"
+    T2 --> U : Pede confirmação
+    U -> T2 : Confirma
+    ref over T2, API : UC-S04 — Cancelar Utilização do Transporte
+    T2 -> T1 : Atualiza o card para o status cinza "Ausente"
+else E1 — Prazo encerrado
+    T2 --> U : Botão "Confirmar" desabilitado\n"Prazo encerrado às HH:MM"
+else E2 — Sem conexão
+    T2 --> U : "Sem conexão. Tente novamente." (não confirma)
+end
+@enduml

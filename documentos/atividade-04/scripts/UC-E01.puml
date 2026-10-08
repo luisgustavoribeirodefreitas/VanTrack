@@ -1,0 +1,21 @@
+@startuml UC-E01
+title UC-E01 — Confirmar Utilização do Transporte (Essencial)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as A
+participant "Sistema" as S
+
+A -> S : Informa o aluno e o dia
+S -> S : Verifica o vínculo e o prazo (RN-004)
+
+alt Caminho de sucesso — vínculo existe e prazo aberto
+    A -> S : Confirma a utilização
+    S -> S : Registra a presença (RN-005)
+    S --> A : Informa a confirmação
+else A1 — Prazo encerrado
+    S --> A : Informa que a presença não pode mais ser confirmada
+else A2 — Aluno sem vínculo com rota
+    S --> A : Solicita a vinculação
+end
+@enduml

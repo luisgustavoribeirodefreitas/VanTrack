@@ -1,0 +1,21 @@
+@startuml UC-E02
+title UC-E02 — Registrar Movimentação do Aluno (Essencial)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Motorista" as A
+participant "Sistema" as S
+
+A -> S : Identifica o aluno e o tipo de movimentação (entrada ou saída)
+S -> S : Verifica se a movimentação é válida para o trajeto
+
+alt Caminho de sucesso — movimentação válida
+    A -> S : Confirma a movimentação (RN-010)
+    S -> S : Registra data, horário e local
+    S --> A : Informa que foi registrada (e o responsável é informado)
+else A1 — Saída sem entrada registrada (RN-011)
+    S --> A : Recusa a movimentação
+else A2 — Aluno ausente
+    S --> A : Não espera movimentação para o aluno
+end
+@enduml

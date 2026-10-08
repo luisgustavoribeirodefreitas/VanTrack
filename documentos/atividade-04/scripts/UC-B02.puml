@@ -1,0 +1,29 @@
+@startuml UC-B02
+title UC-B02 — Aderir ao Transporte da Empresa (Negócio)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Empresa de Transporte" as E
+actor "Responsável" as R
+actor "Aluno" as A
+
+E -> R : Entrega o código de acesso da van (RN-001)
+R -> R : Registra os dados do aluno
+
+alt Caminho de sucesso — aluno menor de idade
+    R -> R : Autoriza o uso dos dados e da localização do aluno (RN-003, RN-016)
+else A1 — Aluno maior de idade
+    A -> A : Dá o próprio consentimento (sem responsável legal)
+end
+
+R -> E : Usa o código para se vincular à van
+
+alt Caminho de sucesso — código válido
+    E -> E : Passa a considerar o aluno na operação da van
+    E --> R : Acesso liberado somente à van contratada
+else A2 — Código inválido ou expirado
+    E --> R : Código não aceito
+    R -> E : Solicita novo código
+    E --> R : Entrega novo código
+end
+@enduml

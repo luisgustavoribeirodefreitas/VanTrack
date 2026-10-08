@@ -1,0 +1,38 @@
+@startuml UC-S05
+title UC-S05 — Registrar Embarque
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Motorista" as M
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+M -> App : Abre a rota ativa
+App -> API : listarAlunosConfirmados(rota)
+API -> DB : consultar alunos com presença confirmada
+DB --> API : alunos (ordem da rota)
+API --> App : lista
+App --> M : Exibe os alunos confirmados na ordem da rota\n(alunos ausentes não aparecem — E1)
+
+M -> App : Seleciona o aluno e confirma o embarque
+App -> App : captura data, horário e localização
+
+alt Caminho de sucesso — com conectividade
+    App -> API : registrarEmbarque(aluno, data, horario, local)
+    API -> DB : salvar embarque e status = "embarcado"
+    DB --> API : ok
+
+    ref over API, DB : «include» UC-I02 — Notificar Responsável sobre Embarque/Desembarque
+
+    API --> App : embarque registrado
+    App --> M : Confirma o registro
+else A1 — Sem conectividade (RN-015)
+    App -> App : armazena o registro localmente
+    App --> M : Registro salvo (pendente de sincronização)
+    ... ao reconectar ...
+    App -> API : sincronizarRegistros()
+    API -> DB : salvar embarque e status = "embarcado"
+    ref over API, DB : «include» UC-I02 (enviada após a sincronização)
+end
+@enduml

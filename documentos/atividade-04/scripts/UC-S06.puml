@@ -1,0 +1,43 @@
+@startuml UC-S06
+title UC-S06 — Registrar Desembarque
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Motorista" as M
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+M -> App : Abre a lista de alunos embarcados
+App -> API : listarEmbarcados(rota)
+API -> DB : consultar alunos embarcados
+DB --> API : alunos
+API --> App : lista
+App --> M : Exibe os alunos embarcados
+
+M -> App : Seleciona o aluno e confirma o desembarque
+App -> App : captura data, horário e localização
+App -> API : registrarDesembarque(aluno, trajeto, data, horario, local)
+API -> DB : existe embarque no mesmo trajeto? (RN-011)
+DB --> API : resultado
+
+alt Caminho de sucesso — com embarque registrado e com conectividade
+    API -> DB : salvar desembarque e status = "desembarcado"
+    DB --> API : ok
+
+    ref over API, DB : «include» UC-I02 — Notificar Responsável sobre Embarque/Desembarque
+
+    API --> App : desembarque registrado
+    App --> M : Confirma o registro
+else A1 — Sem conectividade (RN-015)
+    App -> App : armazena o registro localmente
+    App --> M : Registro salvo (pendente de sincronização)
+    ... ao reconectar ...
+    App -> API : sincronizarRegistros()
+    API -> DB : salvar desembarque e status = "desembarcado"
+    ref over API, DB : «include» UC-I02
+else E1 — Sem embarque registrado
+    API --> App : desembarque não permitido
+    App --> M : Informa o motivo
+end
+@enduml

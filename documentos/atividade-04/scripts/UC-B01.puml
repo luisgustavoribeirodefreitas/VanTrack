@@ -1,0 +1,33 @@
+@startuml UC-B01
+title UC-B01 — Realizar Transporte Escolar Diário (Negócio)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as RA
+actor "Motorista" as M
+
+RA -> M : Informa se o aluno vai usar o transporte no dia (RN-004)
+
+opt A1 — Imprevisto do aluno (antes do embarque, RN-006)
+    RA -> M : Informa que o aluno não vai mais
+    M -> M : Retira o ponto do percurso
+end
+
+M -> M : Organiza o percurso só com os alunos confirmados (RN-005)
+M -> M : Inicia o trajeto
+M --> RA : Responsáveis acompanham a aproximação da van
+
+opt A2 — Atraso da van (entre o início e o desembarque)
+    M --> RA : Comunica o atraso a todos os responsáveis da rota (RN-014)
+end
+
+loop para cada aluno confirmado
+    M -> M : Busca o aluno no ponto e confirma o embarque (RN-010)
+    M --> RA : Responsável é avisado de que o aluno embarcou
+end
+
+loop para cada aluno embarcado
+    M -> M : Leva ao destino e confirma o desembarque (RN-010, RN-011)
+    M --> RA : Responsável é avisado de que o aluno chegou
+end
+@enduml

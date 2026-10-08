@@ -1,0 +1,65 @@
+@startuml UC-C01
+title UC-C01 — Manter Aluno (Concreto / CRUD)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável\n(ou aluno maior de idade)" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+U -> App : Acessa o módulo "Alunos"
+App -> API : listarAlunos(usuario)
+API -> DB : consultar alunos
+DB --> API : alunos
+API --> App : lista
+App --> U : Exibe a listagem
+
+alt Caminho de sucesso — Cadastrar aluno
+    U -> App : Escolhe "Novo aluno"
+    App --> U : Solicita dados obrigatórios (inclui data de nascimento)
+    U -> App : Preenche os dados
+
+    alt E1 — Dados obrigatórios ausentes
+        App --> U : Destaca os campos e mantém os dados preenchidos
+    else dados completos
+        App -> API : verificarMaioridade(dataNascimento)
+        API --> App : menor ou maior de idade
+
+        alt menor de idade
+            opt «extend» UC-X01 — aluno menor de idade (RN-016)
+                ref over App, API : UC-X01 — Registrar Autorização do Responsável Legal
+            end
+        else A1 — Maior de idade
+            App --> U : Consentimento do próprio aluno é suficiente
+        end
+
+        App --> U : Solicita consentimento (dados e localização — RN-003)
+        U -> App : Registra o consentimento e salva
+
+        alt autorização registrada (ou aluno maior)
+            App -> API : salvarAluno(dados, consentimento)
+            API -> DB : validar, salvar e ativar cadastro
+            DB --> API : ok
+            API --> App : aluno ativo
+            App --> U : Exibe o aluno na listagem
+        else E2 — Autorização do responsável legal não registrada
+            API -> DB : salvar cadastro como pendente (não ativa)
+            App --> U : Informa que o cadastro está pendente
+        end
+    end
+else A2 — Editar aluno
+    U -> App : Seleciona um aluno e altera os dados
+    U -> App : Salva
+    App -> API : atualizarAluno(id, dados)
+    API -> DB : atualizar
+    DB --> API : ok
+    App --> U : Exibe o aluno atualizado
+else A3 — Desativar aluno
+    U -> App : Desativa um aluno
+    App -> API : desativarAluno(id)
+    API -> DB : status = desativado
+    DB --> API : ok
+    App --> U : Aluno deixa de entrar em novas rotas
+end
+@enduml

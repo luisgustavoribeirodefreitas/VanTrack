@@ -1,0 +1,31 @@
+@startuml UC-X01
+title UC-X01 — Registrar Autorização do Responsável Legal («extend» de UC-C01)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável" as R
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+note over App : Condição de extensão: aluno cadastrado\nno UC-C01 é menor de idade
+
+App --> R : Informa que o cadastro de menor exige autorização (RN-016)
+App --> R : Exibe o termo de autorização
+
+alt Caminho de sucesso — responsável aceita o termo
+    R -> App : Lê e aceita o termo
+    App -> API : registrarAutorizacao(responsavel, aluno)
+    API -> DB : salvar autorização (data, horário, responsável)
+    API -> DB : vincular responsável ao aluno (RN-009)
+    DB --> API : ok
+    API --> App : autorização registrada
+    App --> R : Cadastro liberado para ativação
+    note over App : Retorna ao UC-C01
+else E1 — Responsável recusa a autorização
+    R -> App : Recusa o termo
+    App -> API : manterCadastroPendente(aluno)
+    API -> DB : status = pendente\n(sem coletar dados pessoais nem de localização)
+    App --> R : Informa que o cadastro permanece pendente
+end
+@enduml

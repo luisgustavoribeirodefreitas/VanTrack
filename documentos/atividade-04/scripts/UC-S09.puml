@@ -1,0 +1,40 @@
+@startuml UC-S09
+title UC-S09 — Gerar Rota Otimizada (automático)
+skinparam sequenceMessageAlign center
+autonumber
+
+participant "Sistema\n(agendador)" as S
+database "Banco de Dados" as DB
+participant "Serviço de Geolocalização" as Geo
+actor "Motorista" as M
+
+note over S : Gatilho: encerra o prazo de confirmação\n(30 min antes da saída, RN-004)
+
+S -> DB : buscarAlunosConfirmados(rota)
+DB --> S : alunos confirmados
+
+alt A1 — Nenhum aluno confirmado
+    S -> DB : salvar rota sem paradas de alunos
+    S --> M : Informa que não há alunos confirmados
+else Caminho de sucesso — há alunos confirmados
+    S -> DB : buscarPontosDeParada(alunos)
+    DB --> S : pontos de parada
+    S -> M : solicitar localização inicial
+
+    alt localização disponível
+        M --> S : localização inicial
+        S -> Geo : calcularRotaOtimizada(origem, pontos)
+        Geo --> S : rota otimizada
+        S -> DB : salvar rota do dia
+        S --> M : Disponibiliza a rota
+    else E1 — Localização do motorista indisponível
+        S --> M : Avisa que a localização é necessária
+        ... aguarda a localização ...
+        M --> S : localização inicial
+        S -> Geo : calcularRotaOtimizada(origem, pontos)
+        Geo --> S : rota otimizada
+        S -> DB : salvar rota do dia
+        S --> M : Disponibiliza a rota
+    end
+end
+@enduml

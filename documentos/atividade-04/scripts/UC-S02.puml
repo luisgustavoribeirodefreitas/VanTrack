@@ -1,0 +1,42 @@
+@startuml UC-S02
+title UC-S02 — Acompanhar Van em Tempo Real
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+participant "Serviço de Geolocalização" as Geo
+actor "Motorista" as M
+
+note over M, API : O dispositivo do motorista envia a posição da van periodicamente
+
+U -> App : Abre "Acompanhar van" e seleciona o aluno/van
+App -> API : verificarVinculo(usuario, van)
+API -> DB : consultar vínculo, consentimento e status da rota
+DB --> API : dados
+
+alt Caminho de sucesso — vínculo válido e van em operação
+    API -> Geo : obterLocalizacaoAtual(van)
+    Geo --> API : latitude, longitude
+    API --> App : posição + ponto de parada do aluno
+    App --> U : Exibe a van no mapa com o ponto de parada
+
+    loop a cada intervalo definido no RNF-001
+        alt conexão ativa
+            App -> API : atualizarPosicao(van)
+            API --> App : nova posição
+            App --> U : Atualiza o mapa
+        else E1 — Perda de conectividade
+            App --> U : Exibe a última localização conhecida\ncom aviso de dado desatualizado e horário da última atualização
+        end
+    end
+else A1 — Van ainda não iniciou a rota
+    API --> App : rota não iniciada
+    App --> U : Informa que a rota ainda não foi iniciada
+else E2 — Usuário sem vínculo com a van
+    API --> App : acesso negado
+    App --> U : Bloqueia a visualização
+end
+@enduml

@@ -1,0 +1,28 @@
+@startuml UC-X02
+title UC-X02 — Recalcular Rota («extend» de UC-S04)
+skinparam sequenceMessageAlign center
+autonumber
+
+participant "Sistema" as S
+database "Banco de Dados" as DB
+participant "Serviço de Geolocalização" as Geo
+actor "Motorista" as M
+
+note over S : Condição de extensão: cancelamento válido no UC-S04\ne rota do dia já gerada (UC-S09, RN-008)
+
+S -> DB : remover da rota o ponto do aluno cancelado
+S -> Geo : obterLocalizacaoAtual(van)
+Geo --> S : localização atual
+S -> DB : buscar alunos ainda confirmados
+DB --> S : alunos confirmados
+
+alt Caminho de sucesso — restam alunos confirmados
+    S -> Geo : recalcularRota(localização, pontos)
+    Geo --> S : nova rota
+    S -> DB : salvar rota atualizada
+    S --> M : Disponibiliza a rota atualizada
+else A1 — Não restam alunos confirmados
+    S -> DB : salvar rota sem paradas de alunos
+    S --> M : Informa que a rota ficou sem paradas de alunos
+end
+@enduml

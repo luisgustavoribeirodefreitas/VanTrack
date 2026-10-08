@@ -1,0 +1,50 @@
+@startuml UC-S08
+title UC-S08 — Trocar Mensagens pelo Chat
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Usuário\n(Motorista/Responsável/Aluno)" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+actor "Demais participantes\nautorizados" as P
+
+U -> App : Abre o chat da van/rota
+App -> API : listarConversas(usuario)
+API -> DB : consultar conversas permitidas
+DB --> API : conversas
+API --> App : lista
+App --> U : Exibe as conversas acessíveis
+
+U -> App : Seleciona uma conversa
+App -> API : abrirConversa(usuario, conversa)
+API -> DB : verificar vínculo com a rota (RN-001, RN-013)
+DB --> API : resultado
+
+alt Caminho de sucesso — usuário vinculado
+    API -> DB : buscar histórico
+    DB --> API : mensagens
+    API --> App : histórico
+    App --> U : Exibe o histórico de mensagens
+
+    U -> App : Escreve e envia uma mensagem
+
+    alt conexão ativa
+        App -> API : enviarMensagem(conversa, texto)
+        API -> DB : armazenar mensagem
+        DB --> API : ok
+        API --> P : Entrega aos participantes autorizados
+        API --> App : mensagem enviada
+        App --> U : Exibe a mensagem no histórico
+    else E3 — Sem conectividade
+        App --> U : Informa que a mensagem não foi enviada
+        App --> U : Permite reenviar
+    end
+else E1 — Usuário sem vínculo com a rota
+    API --> App : acesso negado
+    App --> U : Bloqueia o acesso à conversa
+else E2 — Conversa de outro responsável ou van não vinculada ao seu aluno
+    API --> App : acesso negado
+    App --> U : Bloqueia o acesso à conversa
+end
+@enduml

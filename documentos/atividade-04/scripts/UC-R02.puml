@@ -1,0 +1,36 @@
+@startuml UC-R02
+title UC-R02 — Registrar Embarque pela Tela da Rota (Real)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Motorista" as M
+boundary "Tela Rota do dia" as T
+participant "Servidor" as API
+actor "Responsável" as R
+
+M -> T : Está na tela "Rota do dia" (mapa + lista de paradas)
+T --> M : Destaca a próxima parada com o nome do aluno
+M -> T : Toca no botão grande "Embarcou" ao lado do nome
+
+alt Caminho de sucesso — com conexão
+    T -> API : registrarEmbarque(aluno)
+    API --> T : ok
+    T --> M : Check verde e move o aluno para a seção "Na van"
+
+    opt A1 — Toque por engano (até 10 segundos)
+        M -> T : Toca em "Desfazer"
+        T -> API : desfazerEmbarque(aluno)
+        API --> T : registro removido (antes de notificar)
+        T --> M : Aluno volta para a lista de paradas
+    end
+
+    API --> R : Notificação de embarque (UC-I02)
+    T --> M : Destaca a próxima parada
+else E1 — Sem conexão (RN-015)
+    T -> T : mantém o registro local
+    T --> M : Ícone "Pendente de sincronização" no aluno
+    ... ao reconectar ...
+    T -> API : sincronizarRegistros()
+    API --> R : Notificação de embarque (UC-I02)
+end
+@enduml

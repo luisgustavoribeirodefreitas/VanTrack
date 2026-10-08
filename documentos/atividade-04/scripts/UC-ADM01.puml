@@ -1,0 +1,40 @@
+@startuml UC-ADM01
+title UC-ADM01 — Vincular Motorista à Van (Administrativo)
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Empresa de Transporte" as E
+participant "Painel da Empresa" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+actor "Motorista" as M
+
+E -> App : Acessa "Vans" → "Definir motorista"
+E -> App : Seleciona a van
+App -> API : buscarMotoristaAtivo(van)
+API -> DB : consultar vínculo ativo
+DB --> API : vínculo atual (se houver)
+API --> App : motorista ativo atual
+App --> E : Exibe o motorista ativo atual (se houver)
+
+E -> App : Seleciona o novo motorista e informa data/horário de início
+App -> API : vincularMotorista(van, motorista, inicio)
+API -> DB : van e motorista existem e estão ativos?
+DB --> API : resultado
+
+alt Caminho de sucesso — van e motorista válidos
+    alt Há vínculo ativo anterior
+        API -> DB : encerrar vínculo anterior (data/horário de encerramento)
+    else A1 — Van sem motorista ativo
+        API -> API : não há vínculo a encerrar (pula o encerramento)
+    end
+    API -> DB : ativar novo vínculo motorista–van (RN-012)
+    DB --> API : ok
+    API --> App : vínculo ativado
+    App --> E : Exibe o motorista ativo atualizado e o histórico
+    API --> M : (opcional) informa o novo vínculo
+else E1 — Motorista ou van inexistente/inativo
+    API --> App : vínculo recusado
+    App --> E : Informa o motivo
+end
+@enduml

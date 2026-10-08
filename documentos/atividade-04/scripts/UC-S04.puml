@@ -1,0 +1,37 @@
+@startuml UC-S04
+title UC-S04 — Cancelar Utilização do Transporte
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+U -> App : Escolhe "Cancelar presença"
+U -> App : Seleciona o aluno e o trajeto com presença confirmada
+App -> API : solicitarCancelamento(aluno, trajeto)
+API -> DB : consultar registro de embarque
+DB --> API : situação do embarque
+
+alt Caminho de sucesso — embarque ainda não registrado
+    API --> App : solicitar confirmação
+    App --> U : "Deseja cancelar a presença?"
+    U -> App : Confirma
+    App -> API : cancelarPresenca(aluno, trajeto)
+    API -> DB : status = ausente (data e horário)
+    DB --> API : ok
+
+    ref over API, DB : «include» UC-I01 — Notificar Motorista sobre Cancelamento
+
+    opt «extend» UC-X02 — rota do dia já gerada (RN-008)
+        ref over API, DB : UC-X02 — Recalcular Rota
+    end
+
+    API --> App : cancelamento concluído
+    App --> U : Exibe "Presença cancelada"
+else E1 — Embarque já registrado (RN-006)
+    API --> App : cancelamento negado
+    App --> U : Informa o motivo
+end
+@enduml

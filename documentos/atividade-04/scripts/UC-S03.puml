@@ -1,0 +1,38 @@
+@startuml UC-S03
+title UC-S03 — Confirmar Presença
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Responsável / Aluno" as U
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+U -> App : Escolhe "Confirmar presença"
+App -> API : listarAlunosETrajetos(usuario)
+API -> DB : consultar alunos vinculados
+DB --> API : alunos e trajetos
+API --> App : alunos, datas e trajetos disponíveis
+App --> U : Exibe as opções
+
+U -> App : Seleciona o aluno e o dia/trajeto
+App -> API : verificarSituacao(aluno, trajeto)
+API -> DB : consultar presença e horário de saída
+DB --> API : situação
+
+alt Caminho de sucesso — prazo aberto e sem presença prévia
+    API --> App : liberado para confirmar
+    U -> App : Confirma a presença
+    App -> API : confirmarPresenca(aluno, trajeto)
+    API -> DB : registrar presença (data e horário)
+    DB --> API : ok
+    API --> App : presença confirmada
+    App --> U : Exibe "Presença confirmada"
+else A1 — Presença já confirmada
+    API --> App : status atual = confirmada
+    App --> U : Exibe o status e oferece cancelar (UC-S04)
+else E1 — Prazo encerrado (RN-004)
+    API --> App : prazo encerrado
+    App --> U : Informa que o prazo terminou\n(aluno sem confirmação permanece ausente)
+end
+@enduml

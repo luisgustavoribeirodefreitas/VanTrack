@@ -1,0 +1,32 @@
+@startuml UC-S07
+title UC-S07 — Emitir Aviso de Atraso
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Motorista" as M
+participant "App VanTrack" as App
+participant "Servidor" as API
+database "Banco de Dados" as DB
+
+M -> App : Escolhe "Avisar atraso"
+App --> M : Exibe o formulário de aviso de atraso
+
+opt A1 — Já houve aviso automático (UC-S11)
+    App --> M : Mostra o aviso automático para o motorista complementar o motivo
+end
+
+M -> App : Informa motivo (opcional) e nova previsão de chegada
+M -> App : Confirma o envio
+App -> API : emitirAvisoAtraso(rota, motivo, previsao)
+
+alt Caminho de sucesso — com conectividade
+    ref over API, DB : «include» UC-I03 — Notificar Responsáveis sobre Atraso
+    API -> DB : registrar o aviso na rota
+    DB --> API : ok
+    API --> App : aviso enviado
+    App --> M : Confirma o envio
+else E1 — Sem conectividade
+    App --> M : Informa que o aviso não pôde ser enviado
+    App --> M : Permite tentar novamente
+end
+@enduml
