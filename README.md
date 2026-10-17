@@ -13,7 +13,20 @@ O VanTrack tem como objetivo melhorar a comunicação entre motoristas,
 alunos e responsáveis, oferecendo rastreamento da van em tempo real,
 controle de presença e roteirização dinâmica.
 
-## Documentação
+## Entrega do 1º bimestre
+
+Artefatos finais, na pasta [`entrega-1-bimestre/`](entrega-1-bimestre/):
+
+| Artefato | Arquivo |
+|---|---|
+| Documento de regras de negócio | [01-regras-de-negocio.pdf](entrega-1-bimestre/01-regras-de-negocio.pdf) |
+| Documento de requisitos (funcionais, não funcionais e rastreabilidade) | [02-documento-de-requisitos.pdf](entrega-1-bimestre/02-documento-de-requisitos.pdf) |
+| Documento de casos de uso | [03-documento-de-casos-de-uso.pdf](entrega-1-bimestre/03-documento-de-casos-de-uso.pdf) |
+| Diagrama de casos de uso | [04-diagrama-de-casos-de-uso.png](entrega-1-bimestre/04-diagrama-de-casos-de-uso.png) |
+| Diagramas de sequência | [05-diagramas-de-sequencia.pdf](entrega-1-bimestre/05-diagramas-de-sequencia.pdf) (imagens individuais em [documentos/atividade-04/imagens](documentos/atividade-04/imagens/)) |
+| Evidências do Jira (tarefas, histórias e sprints) | [06-evidencias-jira/](entrega-1-bimestre/06-evidencias-jira/) |
+
+## Documentação (fontes em Markdown)
 
 ### Atividade 01 — Mapas de modelagem
 
@@ -31,4 +44,21 @@ controle de presença e roteirização dinâmica.
 ### Atividade 03 — Casos de Uso
 
 - [Documento de casos de uso](documentos/atividade-03/01-casos-de-uso.md)
-- [Diagrama de casos de uso](documentos/atividade-03/diagrama-casos-de-uso.png)
+- [Diagrama de casos de uso](documentos/atividade-03/diagrama-casos-de-uso.png) (gerado por [script](documentos/atividade-03/scripts/gerar_diagrama_casos_de_uso.py))
+
+### Atividade 04 — Diagramas de Sequência
+
+- [Documento dos diagramas de sequência](documentos/atividade-04/01-diagramas-de-sequencia.md) (com a justificativa das responsabilidades dos participantes)
+- [Scripts PlantUML](documentos/atividade-04/scripts/)
+- [Imagens](documentos/atividade-04/imagens/)
+
+## Como regenerar os PDFs
+
+Requer Python 3 com o pacote `markdown` e o Microsoft Edge (ou Google Chrome).
+Para regenerar também as imagens dos diagramas de sequência, defina `PLANTUML_JAR`
+com o caminho do `plantuml.jar` (requer Java).
+
+```bash
+pip install markdown
+python ferramentas/gerar_artefatos.py
+```

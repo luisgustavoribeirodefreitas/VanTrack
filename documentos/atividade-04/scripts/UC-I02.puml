@@ -1,24 +1,29 @@
 @startuml UC-I02
 title UC-I02 — Notificar Responsável sobre Embarque/Desembarque («include» de UC-S05 e UC-S06)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Sistema" as S
-database "Banco de Dados" as DB
-participant "Serviço de Notificação" as Push
+participant "EmbarqueService\n(UC-S05 / UC-S06)" as ES
+participant "NotificacaoService" as S
+database "VinculoRepository" as VRepo
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Responsável" as R
+database "NotificacaoRepository" as NRepo
 
-note over S : Gatilho: embarque (UC-S05) ou desembarque (UC-S06) registrado
+note over ES : Gatilho: embarque (UC-S05) ou desembarque (UC-S06) registrado
 
-S -> DB : buscarResponsaveisVinculados(aluno)
-DB --> S : responsáveis
+ES -> S : notificarMovimentacao(presenca, tipo)
+S -> VRepo : buscarResponsaveis(aluno) (RN-002, RN-009)
+VRepo --> S : responsáveis vinculados
 
 alt Caminho de sucesso — há responsável vinculado
-    S -> S : monta a mensagem (embarque ou desembarque) com horário
-    S -> Push : enviarPush(responsáveis, mensagem) (RN-002)
-    Push --> R : Notificação de embarque/desembarque
-    S -> DB : registrar o evento como comunicado
+    S -> S : montarMensagem(tipo, horário)
+    S -> Push : enviar(responsáveis, mensagem)
+    Push --> R : notificação de embarque/desembarque
+    S -> NRepo : registrarComunicado(evento) (RN-010)
 else A1 — Aluno maior sem responsável vinculado
     S -> S : nenhuma notificação é enviada
 end
+S --> ES : retorno ao caso de uso base
 @enduml

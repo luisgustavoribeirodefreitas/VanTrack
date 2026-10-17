@@ -1,40 +1,50 @@
 @startuml UC-S09
 title UC-S09 — Gerar Rota Otimizada (automático)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Sistema\n(agendador)" as S
-database "Banco de Dados" as DB
-participant "Serviço de Geolocalização" as Geo
+actor "Tempo\n(agendador)" as Tempo
+control "AgendadorRotas" as Ag
+participant "RotaService" as S
+database "PresencaRepository" as PRepo
+database "VanRepository" as VanRepo
+participant "Serviço de Geolocalização" as Geo <<sistema externo>>
+entity "Rota" as R
+database "RotaRepository" as RRepo
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Motorista" as M
 
-note over S : Gatilho: encerra o prazo de confirmação\n(30 min antes da saída, RN-004)
-
-S -> DB : buscarAlunosConfirmados(rota)
-DB --> S : alunos confirmados
+Tempo -> Ag : prazoConfirmacaoEncerrado(trajetoId)\n(30 min antes da saída — RN-004)
+Ag -> S : gerarRota(trajetoId)
+S -> PRepo : buscarConfirmados(trajetoId) (RN-005)
+PRepo --> S : alunos confirmados e pontos de parada
+S -> VanRepo : buscarMotoristaAtivo(van) (RN-012)
+VanRepo --> S : motorista
 
 alt A1 — Nenhum aluno confirmado
-    S -> DB : salvar rota sem paradas de alunos
-    S --> M : Informa que não há alunos confirmados
+    S -> R : criar(trajeto, paradas = vazia)
+    S -> RRepo : salvar(rota)
+    S -> Push : notificar(motorista, "não há alunos confirmados")
+    Push --> M : aviso de rota sem paradas
 else Caminho de sucesso — há alunos confirmados
-    S -> DB : buscarPontosDeParada(alunos)
-    DB --> S : pontos de parada
-    S -> M : solicitar localização inicial
+    S -> Geo : obterLocalizacao(motorista)
 
     alt localização disponível
-        M --> S : localização inicial
-        S -> Geo : calcularRotaOtimizada(origem, pontos)
-        Geo --> S : rota otimizada
-        S -> DB : salvar rota do dia
-        S --> M : Disponibiliza a rota
+        Geo --> S : localização inicial
     else E1 — Localização do motorista indisponível
-        S --> M : Avisa que a localização é necessária
+        S -> Push : notificar(motorista, "ative a localização")
+        Push --> M : aviso
         ... aguarda a localização ...
-        M --> S : localização inicial
-        S -> Geo : calcularRotaOtimizada(origem, pontos)
-        Geo --> S : rota otimizada
-        S -> DB : salvar rota do dia
-        S --> M : Disponibiliza a rota
+        Geo --> S : localização inicial
     end
+
+    S -> Geo : calcularRotaOtimizada(origem, pontos)
+    Geo --> S : percurso ordenado
+    S -> R : criar(trajeto, paradas, percurso)
+    S -> RRepo : salvar(rota)
+    RRepo --> S : rota salva
+    S -> Push : notificar(motorista, "rota do dia disponível")
+    Push --> M : rota disponível
 end
 @enduml

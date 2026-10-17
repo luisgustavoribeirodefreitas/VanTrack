@@ -1,20 +1,26 @@
 @startuml UC-I01
 title UC-I01 — Notificar Motorista sobre Cancelamento («include» de UC-S04)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Sistema" as S
-database "Banco de Dados" as DB
-participant "Serviço de Notificação" as Push
+participant "PresencaService\n(UC-S04)" as PS
+participant "NotificacaoService" as S
+database "RotaRepository" as RRepo
+database "VanRepository" as VanRepo
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Motorista" as M
+database "NotificacaoRepository" as NRepo
 
-note over S : Gatilho: cancelamento registrado no UC-S04
+note over PS : Gatilho: cancelamento registrado no UC-S04
 
-S -> DB : buscarRotaDoAluno(aluno)
-DB --> S : rota
-S -> DB : buscarMotoristaAtivo(van) (RN-012)
-DB --> S : motorista
-S -> Push : enviarPush(motorista, "Aluno X cancelou")
-Push --> M : Notificação de cancelamento
-S -> DB : registrar o cancelamento como comunicado (RN-007)
+PS -> S : notificarCancelamento(presenca)
+S -> RRepo : buscarRotaDoAluno(aluno)
+RRepo --> S : rota
+S -> VanRepo : buscarMotoristaAtivo(van) (RN-012)
+VanRepo --> S : motorista
+S -> Push : enviar(motorista, "<aluno> cancelou o transporte")
+Push --> M : notificação de cancelamento
+S -> NRepo : registrarComunicado(cancelamento) (RN-007)
+S --> PS : motorista notificado
 @enduml

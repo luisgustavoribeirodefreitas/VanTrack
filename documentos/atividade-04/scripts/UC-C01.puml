@@ -1,65 +1,61 @@
 @startuml UC-C01
-title UC-C01 — Manter Aluno (Concreto / CRUD)
+title UC-C01 — Manter Aluno (Concreto / CRUD) — cenário "cadastrar"
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
 actor "Responsável\n(ou aluno maior de idade)" as U
-participant "App VanTrack" as App
-participant "Servidor" as API
-database "Banco de Dados" as DB
+boundary "TelaCadastroAluno" as T
+control "AlunoController" as C
+participant "AlunoService" as S
+database "AlunoRepository" as ARepo
 
-U -> App : Acessa o módulo "Alunos"
-App -> API : listarAlunos(usuario)
-API -> DB : consultar alunos
-DB --> API : alunos
-API --> App : lista
-App --> U : Exibe a listagem
+U -> T : novoAluno()
+T --> U : solicita os dados obrigatórios (inclui data de nascimento)
+U -> T : informarDados(dados)
+T -> C : validarDados(dados)
+C -> S : validarDados(dados)
 
-alt Caminho de sucesso — Cadastrar aluno
-    U -> App : Escolhe "Novo aluno"
-    App --> U : Solicita dados obrigatórios (inclui data de nascimento)
-    U -> App : Preenche os dados
+alt E1 — Dados obrigatórios ausentes
+    S --> C : campos inválidos
+    C --> T : campos inválidos
+    T --> U : destaca os campos e mantém os dados preenchidos\n(retorna ao informe dos dados)
+else dados completos
+    create entity "Aluno" as A
+    S -> A : new(dados) — status "pendente"
+    S -> A : ehMenorDeIdade()
+    A --> S : menor / maior
 
-    alt E1 — Dados obrigatórios ausentes
-        App --> U : Destaca os campos e mantém os dados preenchidos
-    else dados completos
-        App -> API : verificarMaioridade(dataNascimento)
-        API --> App : menor ou maior de idade
-
-        alt menor de idade
-            opt «extend» UC-X01 — aluno menor de idade (RN-016)
-                ref over App, API : UC-X01 — Registrar Autorização do Responsável Legal
-            end
-        else A1 — Maior de idade
-            App --> U : Consentimento do próprio aluno é suficiente
-        end
-
-        App --> U : Solicita consentimento (dados e localização — RN-003)
-        U -> App : Registra o consentimento e salva
-
-        alt autorização registrada (ou aluno maior)
-            App -> API : salvarAluno(dados, consentimento)
-            API -> DB : validar, salvar e ativar cadastro
-            DB --> API : ok
-            API --> App : aluno ativo
-            App --> U : Exibe o aluno na listagem
-        else E2 — Autorização do responsável legal não registrada
-            API -> DB : salvar cadastro como pendente (não ativa)
-            App --> U : Informa que o cadastro está pendente
-        end
+    alt aluno menor de idade
+        ref over U, S : «extend» UC-X01 — Registrar Autorização do Responsável Legal (RN-016)
+    else A1 — Aluno maior de idade se cadastrando
+        S -> S : UC-X01 não é executado (exceção da RN-016)
     end
-else A2 — Editar aluno
-    U -> App : Seleciona um aluno e altera os dados
-    U -> App : Salva
-    App -> API : atualizarAluno(id, dados)
-    API -> DB : atualizar
-    DB --> API : ok
-    App --> U : Exibe o aluno atualizado
-else A3 — Desativar aluno
-    U -> App : Desativa um aluno
-    App -> API : desativarAluno(id)
-    API -> DB : status = desativado
-    DB --> API : ok
-    App --> U : Aluno deixa de entrar em novas rotas
+
+    S --> C : dados válidos
+    C --> T : solicitar consentimento
+    T --> U : solicita o consentimento para dados e localização (RN-003)
+    U -> T : registrarConsentimento() e salvar()
+    T -> C : salvarAluno(alunoId, consentimento)
+    C -> S : salvarAluno(alunoId, consentimento)
+    S -> A : registrarConsentimento(consentimento)
+    S -> A : podeAtivar() (RN-016)
+    A --> S : sim / não
+
+    alt Caminho de sucesso — autorização registrada (ou aluno maior)
+        S -> A : ativar()
+        S -> ARepo : salvar(aluno)
+        ARepo --> S : aluno salvo
+        S --> C : aluno ativo
+        C --> T : aluno ativo
+        T --> U : exibe o aluno na listagem
+    else E2 — Autorização do responsável legal não registrada
+        S -> ARepo : salvar(aluno) — status "pendente"
+        S --> C : cadastro pendente
+        C --> T : cadastro pendente
+        T --> U : informa que o cadastro está pendente (não ativado)
+    end
 end
+
+note across : Os fluxos A2 (edição) e A3 (desativação) seguem o padrão genérico do UC-A01.
 @enduml

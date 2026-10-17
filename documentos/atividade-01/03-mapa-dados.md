@@ -65,7 +65,7 @@ conceitual com as cardinalidades.
 | Ponto de parada | endereço, latitude/longitude | Onde o aluno embarca/desembarca. |
 | Rota | data, trajeto (ida/volta), horário previsto, situação | Percurso do dia, montado com os confirmados (RN-005). |
 | Presença | situação, data/hora da confirmação, data/hora do cancelamento | Define quem entra na rota e respeita o prazo (RN-004, RN-006). |
-| Embarque / Desembarque | tipo, data/hora, local, sincronizado? | Registro do motorista, inclusive sem conexão (RN-010, RN-011, RN-015). |
+| Embarque / Desembarque | tipo, data/hora, local, sincronizado? | Registro do motorista, inclusive sem conexão (RN-010, RN-011, RNF-006). |
 | Localização da van | latitude/longitude, data/hora | Acompanhamento em tempo real e aviso de proximidade (RF-002, RF-003). |
 | Aviso de atraso | origem, motivo, nova previsão, data/hora | Comunicação única a todos os responsáveis (RN-014). |
 | Notificação | tipo do evento, destinatário, data/hora, lida? | Evita avisos duplicados e registra o que foi comunicado. |

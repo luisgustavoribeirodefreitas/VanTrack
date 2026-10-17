@@ -1,20 +1,25 @@
 @startuml UC-I03
 title UC-I03 — Notificar Responsáveis sobre Atraso («include» de UC-S07 e UC-S11)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Sistema" as S
-database "Banco de Dados" as DB
-participant "Serviço de Notificação" as Push
+participant "AtrasoService\n(UC-S07 / UC-S11)" as AS
+participant "NotificacaoService" as S
+database "PresencaRepository" as PRepo
+database "VinculoRepository" as VRepo
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Responsáveis da rota" as R
 
-note over S : Gatilho: aviso manual (UC-S07) ou automático (UC-S11)
+note over AS : Gatilho: aviso manual (UC-S07) ou automático (UC-S11)
 
-S -> DB : buscarAlunosAtivosDaRota(rota)
-DB --> S : alunos ativos
-S -> DB : buscarResponsaveis(alunos)
-DB --> S : responsáveis
-S -> S : monta o aviso (motivo, se informado, e nova previsão)
-S -> Push : transmitirAviso(responsáveis, aviso) (RN-013, RN-014)
-Push --> R : Aviso de atraso (transmissão simultânea,\nsem abrir conversa entre responsáveis)
+AS -> S : notificarAtraso(rota, aviso)
+S -> PRepo : buscarAlunosAtivos(rota)
+PRepo --> S : alunos ativos na rota
+S -> VRepo : buscarResponsaveis(alunos) (RN-002)
+VRepo --> S : responsáveis
+S -> S : montarAviso(motivo, se informado, e nova previsão)
+S -> Push : transmitir(responsáveis, aviso) (RN-014)
+Push --> R : aviso de atraso (transmissão simultânea,\nsem abrir conversa entre responsáveis — RN-013)
+S --> AS : responsáveis notificados
 @enduml

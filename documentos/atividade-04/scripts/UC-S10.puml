@@ -1,34 +1,47 @@
 @startuml UC-S10
 title UC-S10 — Notificar Proximidade da Van (automático)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Serviço de Geolocalização" as Geo
-participant "Sistema" as S
-database "Banco de Dados" as DB
-participant "Serviço de Notificação" as Push
+actor "Serviço de\nGeolocalização" as Geo <<sistema externo>>
+control "LocalizacaoController" as C
+participant "ProximidadeService" as S
+entity "Rota" as R
+database "RotaRepository" as RRepo
+database "NotificacaoRepository" as NRepo
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Responsável / Aluno" as U
 
-Geo -> S : Nova localização da van
-S -> Geo : calcularEstimativaChegada(pontos de parada pendentes)
-Geo --> S : estimativas
-S -> S : algum ponto atingiu o limite de proximidade?
+Geo -> C : receberLocalizacao(van, posicao, horario)
+C -> S : avaliarProximidade(van, posicao, horario)
+S -> RRepo : buscarRotaAtiva(van)
+RRepo --> S : rota
+S -> R : paradasPendentes()
+R --> S : paradas ainda não atendidas
 
-alt A2 — Limite não atingido
-    S -> S : aguarda a próxima atualização de localização
-else limite atingido
-    S -> DB : aviso já enviado para esta aproximação?
-    DB --> S : resultado
+loop para cada parada pendente
+    S -> Geo : calcularEstimativa(posicao, parada)
+    Geo --> S : tempo estimado de chegada
+    S -> R : atingiuLimiteProximidade(parada, estimativa)
+    R --> S : sim / não
 
-    alt A1 — Aviso já enviado
-        S -> S : não envia novamente
-    else Caminho de sucesso — aviso ainda não enviado
-        opt E1 — Localização desatualizada
-            S -> S : acrescenta "estimativa pode estar imprecisa" à mensagem
+    alt limite atingido
+        S -> NRepo : avisoJaEnviado(parada, rota)
+        NRepo --> S : sim / não
+
+        alt Caminho de sucesso — aviso ainda não enviado
+            opt E1 — Localização desatualizada (RNF-003)
+                S -> S : acrescenta "estimativa pode estar imprecisa"
+            end
+            S -> Push : enviar(responsáveis da parada, "Van próxima") (RN-002)
+            Push --> U : notificação de proximidade
+            S -> NRepo : registrarEnvio(parada, rota)
+        else A1 — Aviso já enviado
+            S -> S : não envia novamente
         end
-        S -> Push : enviarPush(usuário, "Van próxima")
-        Push --> U : Notificação de proximidade
-        S -> DB : registrar o envio
+    else A2 — Limite não atingido
+        S -> S : aguarda a próxima atualização de localização
     end
 end
 @enduml

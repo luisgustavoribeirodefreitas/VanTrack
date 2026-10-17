@@ -1,28 +1,40 @@
 @startuml UC-X02
 title UC-X02 — Recalcular Rota («extend» de UC-S04)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
-participant "Sistema" as S
-database "Banco de Dados" as DB
-participant "Serviço de Geolocalização" as Geo
+participant "PresencaService\n(UC-S04)" as PS
+participant "RotaService" as S
+database "RotaRepository" as RRepo
+entity "Rota" as R
+participant "Serviço de Geolocalização" as Geo <<sistema externo>>
+participant "Serviço de Notificação" as Push <<sistema externo>>
 actor "Motorista" as M
 
-note over S : Condição de extensão: cancelamento válido no UC-S04\ne rota do dia já gerada (UC-S09, RN-008)
+note over PS : Condição de extensão: cancelamento válido no UC-S04\ne rota do dia já gerada (UC-S09, RN-008)
 
-S -> DB : remover da rota o ponto do aluno cancelado
+PS -> S : recalcularRota(rotaId, alunoId)
+S -> RRepo : buscarPorId(rotaId)
+RRepo --> S : rota
+S -> R : removerParada(alunoId)
 S -> Geo : obterLocalizacaoAtual(van)
 Geo --> S : localização atual
-S -> DB : buscar alunos ainda confirmados
-DB --> S : alunos confirmados
+S -> R : paradasRestantes()
+R --> S : alunos ainda confirmados
 
-alt Caminho de sucesso — restam alunos confirmados
-    S -> Geo : recalcularRota(localização, pontos)
-    Geo --> S : nova rota
-    S -> DB : salvar rota atualizada
-    S --> M : Disponibiliza a rota atualizada
+alt Caminho de sucesso — restam alunos confirmados (RN-005)
+    S -> Geo : calcularRotaOtimizada(localização atual, paradas)
+    Geo --> S : novo percurso
+    S -> R : atualizarPercurso(percurso)
+    S -> RRepo : salvar(rota)
+    S -> Push : notificar(motorista, "rota atualizada")
+    Push --> M : rota atualizada
 else A1 — Não restam alunos confirmados
-    S -> DB : salvar rota sem paradas de alunos
-    S --> M : Informa que a rota ficou sem paradas de alunos
+    S -> R : atualizarPercurso(sem paradas de alunos)
+    S -> RRepo : salvar(rota)
+    S -> Push : notificar(motorista, "rota sem paradas de alunos")
+    Push --> M : aviso
 end
+S --> PS : retorno ao UC-S04
 @enduml
