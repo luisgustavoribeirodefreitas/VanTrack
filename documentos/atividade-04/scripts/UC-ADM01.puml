@@ -1,40 +1,45 @@
 @startuml UC-ADM01
 title UC-ADM01 — Vincular Motorista à Van (Administrativo)
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
 actor "Empresa de Transporte" as E
-participant "Painel da Empresa" as App
-participant "Servidor" as API
-database "Banco de Dados" as DB
-actor "Motorista" as M
+boundary "PainelVans" as T
+control "VanController" as C
+participant "VanService" as S
+entity "Van" as V
+database "VanRepository" as VanRepo
+database "MotoristaRepository" as MRepo
 
-E -> App : Acessa "Vans" → "Definir motorista"
-E -> App : Seleciona a van
-App -> API : buscarMotoristaAtivo(van)
-API -> DB : consultar vínculo ativo
-DB --> API : vínculo atual (se houver)
-API --> App : motorista ativo atual
-App --> E : Exibe o motorista ativo atual (se houver)
+E -> T : definirMotorista(vanId)
+T -> C : buscarMotoristaAtivo(vanId)
+C -> S : buscarMotoristaAtivo(vanId)
+S -> VanRepo : buscarPorId(vanId)
+VanRepo --> S : van (com vínculo ativo, se houver)
+S --> C : motorista ativo atual
+C --> T : motorista ativo atual
+T --> E : exibe o motorista ativo atual (se houver)
 
-E -> App : Seleciona o novo motorista e informa data/horário de início
-App -> API : vincularMotorista(van, motorista, inicio)
-API -> DB : van e motorista existem e estão ativos?
-DB --> API : resultado
+E -> T : selecionar(novoMotorista, inicio)
+T -> C : vincularMotorista(vanId, motoristaId, inicio)
+C -> S : vincularMotorista(vanId, motoristaId, inicio)
+S -> MRepo : buscarPorId(motoristaId)
+MRepo --> S : motorista
 
-alt Caminho de sucesso — van e motorista válidos
-    alt Há vínculo ativo anterior
-        API -> DB : encerrar vínculo anterior (data/horário de encerramento)
-    else A1 — Van sem motorista ativo
-        API -> API : não há vínculo a encerrar (pula o encerramento)
+alt Caminho de sucesso — van e motorista ativos
+    opt há vínculo ativo anterior (A1: van sem motorista pula este trecho)
+        S -> V : encerrarVinculoAtivo(inicio) — registra data/horário de encerramento
     end
-    API -> DB : ativar novo vínculo motorista–van (RN-012)
-    DB --> API : ok
-    API --> App : vínculo ativado
-    App --> E : Exibe o motorista ativo atualizado e o histórico
-    API --> M : (opcional) informa o novo vínculo
+    S -> V : ativarVinculo(motorista, inicio) (RN-012)
+    S -> VanRepo : salvar(van)
+    VanRepo --> S : vínculo salvo
+    S --> C : vínculo ativado
+    C --> T : motorista ativo e histórico
+    T --> E : exibe o motorista ativo atualizado e o histórico
 else E1 — Motorista ou van inexistente/inativo
-    API --> App : vínculo recusado
-    App --> E : Informa o motivo
+    S --> C : vínculo recusado
+    C --> T : vínculo recusado
+    T --> E : informa o motivo
 end
 @enduml

@@ -18,8 +18,8 @@ sua conclusão.
 | F02 | Cadastrar aluno | RF-016 | RN-003, RN-009, RN-016 |
 | F03 | Confirmar presença e montar a rota do dia | RF-004, RF-007 | RN-004, RN-005, RN-012 |
 | F04 | Cancelar presença | RF-005, RF-006, RF-008 | RN-006, RN-007, RN-008 |
-| F05 | Acompanhar a van e aviso de proximidade | RF-002, RF-003 | RN-002, RN-003, RN-015 |
-| F06 | Embarque e desembarque | RF-009, RF-010, RF-011 | RN-010, RN-011, RN-015 |
+| F05 | Acompanhar a van e aviso de proximidade | RF-002, RF-003, RNF-003 | RN-002, RN-003 |
+| F06 | Embarque e desembarque | RF-009, RF-010, RF-011, RNF-006 | RN-010, RN-011 |
 | F07 | Comunicar atraso | RF-012, RF-015 | RN-014 |
 | F08 | Conversar pelo chat da van | RF-013 | RN-013 |
 | F09 | Trocar o motorista da van | RF-014 | RN-012 |
@@ -128,7 +128,7 @@ sua conclusão.
 ## F05 — Acompanhar a van e aviso de proximidade
 
 **Quem inicia:** Motorista → Sistema  
-**Requisitos:** RF-002, RF-003 · **Regras de negócio:** RN-002, RN-003, RN-015
+**Requisitos:** RF-002, RF-003, RNF-003 · **Regras de negócio:** RN-002, RN-003
 
 ![F05 — Acompanhar a van e aviso de proximidade](fluxo-f05.png)
 
@@ -156,7 +156,7 @@ sua conclusão.
 ## F06 — Embarque e desembarque
 
 **Quem inicia:** Motorista  
-**Requisitos:** RF-009, RF-010, RF-011 · **Regras de negócio:** RN-010, RN-011, RN-015
+**Requisitos:** RF-009, RF-010, RF-011, RNF-006 · **Regras de negócio:** RN-010, RN-011
 
 ![F06 — Embarque e desembarque](fluxo-f06.png)
 

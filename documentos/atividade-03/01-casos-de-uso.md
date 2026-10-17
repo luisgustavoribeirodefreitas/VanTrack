@@ -28,11 +28,15 @@ funcionais (RF), às regras de negócio (RN) e aos requisitos não funcionais
 | Aluno | Principal | Usuário do transporte. Pode confirmar/cancelar a própria presença e acompanhar a van. |
 | Motorista | Principal | Opera a van, executa a rota, registra embarque/desembarque e comunica atrasos. |
 | Empresa de Transporte | Principal | Fornece os códigos de vinculação e gerencia o vínculo motorista–van. |
-| Sistema (tempo/eventos) | Principal (automático) | Executa comportamentos disparados por horário ou por eventos (gerar rota, detectar atraso, notificar). |
+| Tempo (agendador) | Principal (automático) | Representa a passagem do tempo: dispara os comportamentos agendados, como gerar a rota ao fim do prazo de confirmação e verificar atrasos periodicamente. |
 | Serviço de Geolocalização (GPS/Mapas) | Secundário | Fornece a localização da van e o cálculo de trajetos. |
 | Serviço de Notificação (push) | Secundário | Entrega as notificações aos dispositivos dos usuários. |
 
 > Um mesmo usuário pode assumir mais de um papel (ex.: o aluno maior de idade que é responsável por si mesmo).
+>
+> O próprio VanTrack não é ator, pois atores não fazem parte do sistema. Nos casos de uso
+> de inclusão e extensão, que só executam como parte de outro caso de uso, o campo
+> "Ator principal" indica "Sistema (executado como parte de ...)", seguindo o modelo da disciplina.
 
 ---
 
@@ -50,9 +54,9 @@ funcionais (RF), às regras de negócio (RN) e aos requisitos não funcionais
 | UC-S06 | Registrar Desembarque | Sistema | Motorista | RF-010 |
 | UC-S07 | Emitir Aviso de Atraso | Sistema | Motorista | RF-012 |
 | UC-S08 | Trocar Mensagens pelo Chat | Sistema | Motorista/Responsável/Aluno | RF-013 |
-| UC-S09 | Gerar Rota Otimizada | Sistema (automático) | Sistema | RF-007 |
-| UC-S10 | Notificar Proximidade da Van | Sistema (automático) | Sistema | RF-003 |
-| UC-S11 | Detectar Atraso Automaticamente | Sistema (automático) | Sistema | RF-015 |
+| UC-S09 | Gerar Rota Otimizada | Sistema (automático) | Tempo (agendador) | RF-007 |
+| UC-S10 | Notificar Proximidade da Van | Sistema (automático) | Serviço de Geolocalização | RF-003 |
+| UC-S11 | Detectar Atraso Automaticamente | Sistema (automático) | Tempo (agendador) | RF-015 |
 | UC-E01 | Confirmar Utilização do Transporte | Essencial | Responsável/Aluno | RF-004 |
 | UC-E02 | Registrar Movimentação do Aluno | Essencial | Motorista | RF-009, RF-010 |
 | UC-R01 | Confirmar Presença pelo Aplicativo | Real | Responsável/Aluno | RF-004 |
@@ -70,7 +74,8 @@ funcionais (RF), às regras de negócio (RN) e aos requisitos não funcionais
 
 ## 3. Diagrama de casos de uso
 
-O diagrama mostra a visão de sistema (UC-S, UC-C, UC-I, UC-X e UC-ADM).
+O diagrama mostra a visão de sistema (UC-S, UC-C, UC-I, UC-X e UC-ADM), com os atores
+principais e os atores secundários externos (Serviço de Geolocalização e Serviço de Notificação).
 Os casos de uso de negócio, essenciais e reais são outras visões dos mesmos
 objetivos e por isso não aparecem como elementos separados no diagrama.
 
@@ -202,8 +207,8 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Exceções**
 
-- **E1. Código inválido** → sistema recusa a vinculação, informa o erro e volta ao passo 1.
-- **E2. Código expirado ou desativado** → sistema informa a situação e orienta o usuário a solicitar novo código à empresa.
+- **E1. Código inválido** — No passo 3: sistema recusa a vinculação, informa o erro e retorna ao passo 1.
+- **E2. Código expirado ou desativado** — No passo 3: sistema informa a situação e orienta o usuário a solicitar novo código à empresa. O caso de uso é encerrado sem registrar o vínculo.
 
 **Regras de negócio:** RN-001, RN-002, RN-009
 
@@ -219,7 +224,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Atores secundários:** Motorista (dispositivo que envia a posição), Serviço de Geolocalização
 
-**Pré-condições:** Usuário vinculado à van/rota (UC-S01); consentimento de localização registrado; van em operação.
+**Pré-condições:** Usuário vinculado à van/rota (UC-S01); consentimento de localização registrado.
 
 **Pós-condições:** Última localização recebida registrada e exibida ao usuário autorizado.
 
@@ -235,14 +240,14 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Van ainda não iniciou a rota)** No passo 3, a van não está em operação → sistema informa que a rota ainda não foi iniciada.
+- **A1. (Van ainda não iniciou a rota)** No passo 3, a van não está em operação → sistema informa que a rota ainda não foi iniciada e o caso de uso é encerrado.
 
 **Exceções**
 
-- **E1. Perda de conectividade** → sistema exibe a última localização conhecida com aviso claro de que o dado pode estar desatualizado, informando o horário da última atualização.
-- **E2. Usuário sem vínculo com a van** → sistema bloqueia a visualização.
+- **E1. Perda de conectividade** — No passo 5: sistema exibe a última localização conhecida com aviso claro de que o dado pode estar desatualizado, informando o horário da última atualização (RNF-003). Ao reconectar, retorna ao passo 5.
+- **E2. Usuário sem vínculo com a van** — No passo 2: sistema bloqueia a visualização e o caso de uso é encerrado.
 
-**Regras de negócio:** RN-002, RN-003, RN-012, RN-015
+**Regras de negócio:** RN-002, RN-003, RN-012
 
 **Requisitos relacionados:** RF-002, RNF-001, RNF-002, RNF-003
 
@@ -273,11 +278,11 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Presença já confirmada)** No passo 2, o aluno já está confirmado → sistema exibe o status atual e oferece a opção de cancelar (UC-S04).
+- **A1. (Presença já confirmada)** No passo 2, o aluno já está confirmado → sistema exibe o status atual e oferece a opção de cancelar (UC-S04). O caso de uso é encerrado sem novo registro.
 
 **Exceções**
 
-- **E1. Prazo encerrado** → sistema informa que o prazo terminou; o aluno sem confirmação permanece ausente.
+- **E1. Prazo encerrado** — No passo 3: sistema informa que o prazo terminou; o aluno sem confirmação permanece ausente (RN-004). O caso de uso é encerrado sem registrar a presença.
 
 **Regras de negócio:** RN-004, RN-005
 
@@ -313,7 +318,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Exceções**
 
-- **E1. Embarque já registrado** → sistema não permite o cancelamento e informa o motivo.
+- **E1. Embarque já registrado** — No passo 2: sistema não permite o cancelamento e informa o motivo (RN-006). O caso de uso é encerrado sem alterar a presença.
 
 **Regras de negócio:** RN-006, RN-007, RN-008
 
@@ -337,7 +342,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxo principal (sucesso)**
 
-1. Sistema exibe a lista de alunos confirmados na ordem da rota.
+1. Sistema exibe a lista de alunos com presença confirmada, na ordem da rota (alunos ausentes não aparecem, conforme a exceção da RN-010).
 2. Motorista seleciona o aluno e confirma o embarque.
 3. Sistema registra o embarque com data, horário e localização.
 4. Sistema altera o status do aluno para "embarcado".
@@ -345,13 +350,13 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Sem conectividade)** No passo 3 → o registro é armazenado localmente no dispositivo do motorista, sem bloquear a ação, e sincronizado automaticamente ao reconectar; a notificação (passo 5) é enviada após a sincronização.
+- **A1. (Sem conectividade)** No passo 3 → o registro é armazenado localmente no dispositivo do motorista, sem bloquear a ação, e sincronizado automaticamente ao reconectar (RNF-006); após a sincronização, segue para os passos 4 e 5 (a notificação é enviada nesse momento).
 
 **Exceções**
 
-- **E1. Aluno ausente** → sistema não exibe o aluno como embarque esperado.
+Nenhuma exceção relevante identificada: o aluno ausente não aparece na lista do passo 1, e a falta de conectividade é tratada no A1.
 
-**Regras de negócio:** RN-010, RN-015
+**Regras de negócio:** RN-010
 
 **Requisitos relacionados:** RF-009, RNF-005, RNF-006
 
@@ -382,13 +387,13 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Sem conectividade)** No passo 4 → registro armazenado localmente e sincronizado ao reconectar, como no UC-S05.
+- **A1. (Sem conectividade)** No passo 4 → registro armazenado localmente e sincronizado ao reconectar (RNF-006), como no UC-S05; após a sincronização, segue para os passos 5 e 6.
 
 **Exceções**
 
-- **E1. Sem embarque registrado** → sistema não permite o registro válido do desembarque e informa o motorista.
+- **E1. Sem embarque registrado** — No passo 3: sistema não permite o registro válido do desembarque e informa o motorista (RN-011). O caso de uso é encerrado sem registrar o desembarque.
 
-**Regras de negócio:** RN-010, RN-011, RN-015
+**Regras de negócio:** RN-010, RN-011
 
 **Requisitos relacionados:** RF-010, RNF-005, RNF-006
 
@@ -418,13 +423,13 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Complementar aviso automático)** Se já houve disparo pelo UC-S11, o motorista pode apenas complementar o motivo do atraso, e o sistema reenvia a informação atualizada.
+- **A1. (Complementar aviso automático)** No passo 1, se já houve disparo pelo UC-S11, o sistema exibe o aviso automático e o motorista apenas complementa o motivo do atraso; segue para o passo 3 e o sistema reenvia a informação atualizada.
 
 **Exceções**
 
-- **E1. Sem conectividade** → sistema informa que o aviso não pôde ser enviado e permite tentar novamente.
+- **E1. Sem conectividade** — No passo 4: sistema informa que o aviso não pôde ser enviado (RNF-003) e retorna ao passo 3 para nova tentativa; se o motorista desistir, o caso de uso é encerrado sem registrar o aviso.
 
-**Regras de negócio:** RN-002, RN-012, RN-014, RN-015
+**Regras de negócio:** RN-002, RN-012, RN-014
 
 **Requisitos relacionados:** RF-012, RNF-003, RNF-005
 
@@ -455,11 +460,11 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Exceções**
 
-- **E1. Usuário sem vínculo com a rota** → sistema bloqueia o acesso à conversa.
-- **E2. Responsável tenta acessar conversa de outro responsável ou de van não vinculada ao seu aluno** → sistema bloqueia o acesso.
-- **E3. Sem conectividade** → sistema informa que a mensagem não foi enviada e permite reenviar.
+- **E1. Usuário sem vínculo com a rota** — No passo 3: sistema bloqueia o acesso à conversa e o caso de uso é encerrado.
+- **E2. Responsável tenta acessar conversa de outro responsável ou de van não vinculada ao seu aluno** — No passo 3: sistema bloqueia o acesso (RN-013) e o caso de uso é encerrado.
+- **E3. Sem conectividade** — No passo 6: sistema informa que a mensagem não foi enviada (RNF-003) e retorna ao passo 5 para reenvio.
 
-**Regras de negócio:** RN-001, RN-002, RN-013, RN-015
+**Regras de negócio:** RN-001, RN-002, RN-013
 
 **Requisitos relacionados:** RF-013, RNF-002, RNF-003
 
@@ -469,9 +474,9 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Objetivo:** Gerar a rota do dia contendo apenas os alunos com presença confirmada.
 
-**Ator principal:** Sistema
+**Ator principal:** Tempo (agendador)
 
-**Atores secundários:** Motorista (recebe a rota), Serviço de Geolocalização
+**Atores secundários:** Motorista (recebe a rota), Serviço de Geolocalização, Serviço de Notificação
 
 **Pré-condições:** Prazo de confirmação encerrado; pontos de parada cadastrados; localização inicial do motorista disponível; van com motorista ativo.
 
@@ -489,11 +494,11 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Nenhum aluno confirmado)** No passo 1 → sistema gera a rota sem paradas de alunos e informa o motorista.
+- **A1. (Nenhum aluno confirmado)** No passo 1 → sistema gera a rota sem paradas de alunos (exceção da RN-005), informa o motorista e o caso de uso é encerrado.
 
 **Exceções**
 
-- **E1. Localização do motorista indisponível** → sistema avisa o motorista e aguarda a localização para concluir o cálculo.
+- **E1. Localização do motorista indisponível** — No passo 3: sistema avisa o motorista e aguarda a localização; ao recebê-la, retorna ao passo 4.
 
 **Regras de negócio:** RN-004, RN-005, RN-012
 
@@ -505,9 +510,9 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Objetivo:** Avisar o responsável/aluno quando a van estiver próxima ao ponto de parada, reduzindo o tempo de espera na rua.
 
-**Ator principal:** Sistema
+**Ator principal:** Serviço de Geolocalização
 
-**Atores secundários:** Serviço de Geolocalização, Serviço de Notificação, Responsável/Aluno (recebe o aviso)
+**Atores secundários:** Serviço de Notificação, Responsável/Aluno (recebe o aviso)
 
 **Pré-condições:** Rastreamento ativo; ponto de parada cadastrado; usuário vinculado à rota; limite de proximidade configurado.
 
@@ -517,7 +522,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxo principal (sucesso)**
 
-1. Sistema recebe a nova localização da van.
+1. Serviço de Geolocalização envia a nova localização da van.
 2. Sistema calcula a estimativa de chegada até cada ponto de parada ainda não atendido.
 3. Sistema verifica se algum ponto atingiu o limite de proximidade configurado.
 4. Sistema verifica se aquele aviso já foi enviado.
@@ -526,14 +531,14 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Aviso já enviado)** No passo 4, o aviso já foi enviado para essa aproximação → sistema não envia novamente.
-- **A2. (Limite não atingido)** No passo 3 → sistema aguarda a próxima atualização de localização.
+- **A1. (Aviso já enviado)** No passo 4, o aviso já foi enviado para essa aproximação → sistema não envia novamente e o caso de uso é encerrado.
+- **A2. (Limite não atingido)** No passo 3 → o caso de uso é encerrado e o sistema aguarda a próxima atualização de localização.
 
 **Exceções**
 
-- **E1. Localização desatualizada** → sistema envia o aviso informando que a estimativa pode estar imprecisa.
+- **E1. Localização desatualizada** — No passo 5: sistema envia o aviso informando que a estimativa pode estar imprecisa (RNF-003) e segue para o passo 6.
 
-**Regras de negócio:** RN-002, RN-003, RN-015
+**Regras de negócio:** RN-002, RN-003
 
 **Requisitos relacionados:** RF-003, RNF-001, RNF-003
 
@@ -543,11 +548,11 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Objetivo:** Avisar sobre atrasos sem depender do acionamento manual do motorista.
 
-**Ator principal:** Sistema
+**Ator principal:** Tempo (agendador)
 
-**Atores secundários:** Serviço de Geolocalização, Motorista (pode complementar o motivo)
+**Atores secundários:** Serviço de Geolocalização, Serviço de Notificação, Motorista (pode complementar o motivo)
 
-**Pré-condições:** Rota ativa; limiar mínimo de atraso configurado.
+**Pré-condições:** Rota ativa; limiar de atraso definido (padrão de 10 minutos, RN-014).
 
 **Pós-condições:** Atraso automático registrado como comunicado, quando aplicável.
 
@@ -557,13 +562,13 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 1. Sistema compara o horário previsto de chegada com o horário real/estimado.
 2. Sistema calcula o desvio.
-3. Sistema verifica que o desvio ultrapassa o limiar configurado.
+3. Sistema verifica que o desvio é igual ou superior ao limiar de atraso (10 minutos, no valor padrão).
 4. Sistema executa **UC-I03 — Notificar Responsáveis sobre Atraso** (`<<include>>`).
 5. Sistema registra o atraso como comunicado e avisa o motorista, que pode complementar o motivo (UC-S07, A1).
 
 **Fluxos alternativos**
 
-- **A1. (Desvio abaixo do limiar)** No passo 3 → nenhuma notificação é gerada.
+- **A1. (Desvio abaixo do limiar)** No passo 3 → nenhuma notificação é gerada e o caso de uso é encerrado (exceção da RN-014).
 
 **Regras de negócio:** RN-014
 
@@ -594,8 +599,8 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Alternativas**
 
-- **A1.** Prazo encerrado → sistema informa que a presença não pode mais ser confirmada.
-- **A2.** Aluno sem vínculo com rota → sistema solicita a vinculação.
+- **A1.** No passo 2, prazo encerrado → sistema informa que a presença não pode mais ser confirmada; caso de uso encerrado.
+- **A2.** No passo 2, aluno sem vínculo com rota → sistema solicita a vinculação (UC-S01); caso de uso encerrado.
 
 **Regras de negócio**
 
@@ -627,8 +632,8 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Alternativas**
 
-- **A1.** Saída sem entrada registrada → sistema recusa a movimentação.
-- **A2.** Aluno ausente → sistema não espera movimentação para ele.
+- **A1.** No passo 2, saída sem entrada registrada → sistema recusa a movimentação; caso de uso encerrado.
+- **A2.** No passo 1, aluno ausente → sistema não espera movimentação para ele; caso de uso encerrado.
 
 **Regras de negócio**
 
@@ -666,12 +671,12 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Cancelar)** Na tela "Presença do dia", ator toca em "Não vou mais" → sistema pede confirmação e muda o card para o status cinza "Ausente" (UC-S04).
+- **A1. (Cancelar)** No passo 5, na tela "Presença do dia", ator toca em "Não vou mais" → sistema pede confirmação e muda o card para o status cinza "Ausente" (UC-S04); caso de uso encerrado.
 
 **Exceções**
 
-- **E1. Prazo encerrado** → o botão "Confirmar" aparece desabilitado com a mensagem "Prazo encerrado às HH:MM".
-- **E2. Sem conexão** → sistema exibe "Sem conexão. Tente novamente." e não confirma.
+- **E1. Prazo encerrado** — No passo 4: o botão "Confirmar" aparece desabilitado com a mensagem "Prazo encerrado às HH:MM"; caso de uso encerrado.
+- **E2. Sem conexão** — No passo 5: sistema exibe "Sem conexão. Tente novamente." e não confirma; retorna ao passo 5.
 
 **Regras de negócio**
 
@@ -701,20 +706,15 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 4. Sistema registra o embarque, mostra um check verde e move o aluno para a seção "Na van".
 5. Sistema envia a notificação ao responsável e destaca a próxima parada.
 
-**Fluxos alternativos**
-
-- **A1. (Toque por engano)** Motorista toca em "Desfazer" em até 10 segundos → sistema remove o registro antes de notificar.
-
 **Exceções**
 
-- **E1. Sem conexão** → sistema mostra o ícone "Pendente de sincronização" no aluno, mantém o registro local e envia ao reconectar.
+- **E1. Sem conexão** — No passo 4: sistema mostra o ícone "Pendente de sincronização" no aluno, mantém o registro local e envia ao reconectar; após o envio, segue para o passo 5.
 
 **Regras de negócio**
 
 - RN-010: O embarque deve ser confirmado pelo motorista.
-- RN-015: O check-in pode ser registrado sem conexão e sincronizado depois.
 
-**Requisitos relacionados:** RF-009, RNF-005, RNF-006
+**Requisitos relacionados:** RF-009, RNF-005, RNF-006 (o check-in pode ser registrado sem conexão e sincronizado depois)
 
 ---
 
@@ -763,25 +763,25 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 1. Usuário escolhe "Novo aluno".
 2. Sistema solicita os dados obrigatórios, incluindo a data de nascimento.
-3. Usuário preenche os dados.
-4. Sistema verifica se o aluno é menor de idade.
-5. Sistema solicita o consentimento para o tratamento de dados e de localização.
+3. Usuário informa os dados.
+4. Sistema valida os dados obrigatórios e verifica se o aluno é menor de idade.
+5. Sistema solicita o consentimento para o tratamento de dados e de localização (RN-003).
 6. Usuário registra o consentimento e salva.
-7. Sistema valida, salva e ativa o cadastro.
+7. Sistema salva e ativa o cadastro.
 8. Sistema exibe o aluno na listagem.
 
-**Ponto de extensão:** No passo 4, se o aluno for menor de idade, executa **UC-X01 — Registrar Autorização do Responsável Legal**.
+**Ponto de extensão:** No passo 4, se o aluno for menor de idade, executa **UC-X01 — Registrar Autorização do Responsável Legal** e retorna ao passo 5.
 
 **Fluxos alternativos**
 
-- **A1. (Aluno maior de idade)** No passo 4 → o consentimento do próprio aluno é suficiente; segue para o passo 5.
-- **A2. (Edição)** Usuário seleciona um aluno → altera os dados → salva.
-- **A3. (Desativação)** Usuário desativa um aluno → sistema deixa de incluí-lo em novas rotas.
+- **A1. (Aluno maior de idade se cadastrando)** No passo 4, o sistema identifica que o aluno é maior de idade → o UC-X01 não é executado e, no passo 6, o consentimento é registrado pelo próprio aluno (exceção da RN-016); segue para o passo 7.
+- **A2. (Edição)** No passo 1, usuário seleciona um aluno da listagem, altera os dados e salva → sistema valida os dados (passo 4), salva a alteração e o caso de uso é encerrado.
+- **A3. (Desativação)** No passo 1, usuário desativa um aluno → sistema registra a desativação, deixa de incluí-lo em novas rotas e o caso de uso é encerrado.
 
 **Exceções**
 
-- **E1. Dados obrigatórios ausentes** → sistema destaca os campos e mantém os dados já preenchidos.
-- **E2. Autorização do responsável legal não registrada (aluno menor)** → sistema mantém o cadastro pendente e não o ativa.
+- **E1. Dados obrigatórios ausentes** — No passo 4: sistema destaca os campos, mantém os dados já preenchidos e retorna ao passo 3.
+- **E2. Autorização do responsável legal não registrada (aluno menor)** — No passo 7: sistema salva o cadastro como pendente e não o ativa (RN-016). O caso de uso é encerrado.
 
 **Regras de negócio:** RN-003, RN-009, RN-016
 
@@ -839,7 +839,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Aluno maior sem responsável vinculado)** No passo 1 → nenhuma notificação é enviada.
+- **A1. (Aluno maior sem responsável vinculado)** No passo 1 → nenhuma notificação é enviada e o fluxo retorna ao caso de uso que o incluiu.
 
 **Regras de negócio:** RN-002, RN-009, RN-010
 
@@ -904,7 +904,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Exceções**
 
-- **E1. Responsável recusa a autorização** → sistema mantém o cadastro pendente e não coleta dados pessoais nem de localização do menor.
+- **E1. Responsável recusa a autorização** — No passo 3: sistema mantém o cadastro pendente, não coleta dados pessoais nem de localização do menor e retorna ao UC-C01, que segue pela exceção E2.
 
 **Regras de negócio:** RN-009, RN-016
 
@@ -939,7 +939,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Fluxos alternativos**
 
-- **A1. (Não restam alunos confirmados)** No passo 3 → a rota fica sem paradas de alunos e o motorista é informado.
+- **A1. (Não restam alunos confirmados)** No passo 3 → a rota fica sem paradas de alunos (exceção da RN-008); segue para o passo 4, informando o motorista.
 
 **Regras de negócio:** RN-005, RN-006, RN-008
 
@@ -978,7 +978,7 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 
 **Exceções**
 
-- **E1. Motorista ou van inexistente/inativo** → sistema impede o vínculo e informa o motivo.
+- **E1. Motorista ou van inexistente/inativo** — No passo 3: sistema impede o vínculo, informa o motivo e retorna ao passo 3 para nova seleção; se a empresa desistir, o caso de uso é encerrado sem alterar o vínculo.
 
 **Regras de negócio:** RN-012
 
@@ -994,13 +994,13 @@ objetivos e por isso não aparecem como elementos separados no diagrama.
 | RF-002 — Rastrear localização da van | UC-S02 |
 | RF-003 — Notificar proximidade da van | UC-S10 |
 | RF-004 — Confirmar presença | UC-B01, UC-S03, UC-E01, UC-R01 |
-| RF-005 — Cancelar utilização do transporte | UC-B01, UC-S04 |
-| RF-006 — Notificar motorista sobre cancelamento | UC-I01 |
+| RF-005 — Cancelar utilização do transporte | UC-B01, UC-S04, UC-R01 |
+| RF-006 — Notificar motorista sobre cancelamento | UC-B01, UC-I01 |
 | RF-007 — Gerar rota otimizada | UC-B01, UC-S09 |
-| RF-008 — Recalcular rota após cancelamento | UC-X02 |
+| RF-008 — Recalcular rota após cancelamento | UC-B01, UC-X02 |
 | RF-009 — Registrar embarque | UC-B01, UC-S05, UC-E02, UC-R02 |
 | RF-010 — Registrar desembarque | UC-B01, UC-S06, UC-E02 |
-| RF-011 — Notificar responsável sobre embarque e desembarque | UC-B01, UC-I02 |
+| RF-011 — Notificar responsável sobre embarque e desembarque | UC-B01, UC-E02, UC-I02 |
 | RF-012 — Emitir aviso geral de atraso | UC-B01, UC-S07, UC-I03 |
 | RF-013 — Trocar mensagens pelo chat | UC-S08 |
 | RF-014 — Vincular motorista à van | UC-ADM01 |

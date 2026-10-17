@@ -105,36 +105,6 @@ RF-002, RF-003, RF-012, RF-013
 **Casos de teste relacionados:**  
 Não definido nesta etapa.
 
-## RNF-006 — Sincronização de check-ins offline
-
-**Categoria:**
-Confiabilidade
-
-**Descrição:**
-Check-ins de embarque e desembarque registrados sem conectividade devem ser sincronizados automaticamente ao reconectar.
-
-**Justificativa:**
-O motorista pode operar trechos sem sinal e não deve ficar impedido de registrar embarque/desembarque.
-
-**Métrica/Critério mensurável:**
-100% dos check-ins registrados offline devem ser sincronizados em até 5 minutos após o restabelecimento da conectividade.
-
-**Escopo:**
-Check-in de embarque e desembarque.
-
-**Prioridade:**
-Alta
-
-**Status:**
-Proposto
-
-**Requisitos relacionados:**
-RF-009, RF-010
-
-**Casos de teste relacionados:**
-Não definido nesta etapa.
-
-
 ---
 
 ## RNF-004 — Compatibilidade multiplataforma
@@ -163,7 +133,7 @@ Alta
 Proposto
 
 **Requisitos relacionados:**  
-RF-001 a RF-013
+RF-001 a RF-016
 
 **Casos de teste relacionados:**  
 Não definido nesta etapa.
@@ -199,6 +169,37 @@ Proposto
 
 **Requisitos relacionados:**  
 RF-009, RF-010, RF-012
+
+**Casos de teste relacionados:**  
+Não definido nesta etapa.
+
+---
+
+## RNF-006 — Sincronização de check-ins offline
+
+**Categoria:**  
+Confiabilidade
+
+**Descrição:**  
+Check-ins de embarque e desembarque registrados sem conectividade devem ser sincronizados automaticamente ao reconectar.
+
+**Justificativa:**  
+O motorista pode operar trechos sem sinal e não deve ficar impedido de registrar embarque/desembarque.
+
+**Métrica/Critério mensurável:**  
+100% dos check-ins registrados offline devem ser sincronizados em até 5 minutos após o restabelecimento da conectividade.
+
+**Escopo:**  
+Check-in de embarque e desembarque.
+
+**Prioridade:**  
+Alta
+
+**Status:**  
+Proposto
+
+**Requisitos relacionados:**  
+RF-009, RF-010
 
 **Casos de teste relacionados:**  
 Não definido nesta etapa.

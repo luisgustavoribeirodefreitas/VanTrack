@@ -1,43 +1,58 @@
 @startuml UC-S06
 title UC-S06 — Registrar Desembarque
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
 actor "Motorista" as M
-participant "App VanTrack" as App
-participant "Servidor" as API
-database "Banco de Dados" as DB
+boundary "TelaRotaDoDia" as T
+participant "ArmazenamentoLocal\n(dispositivo)" as Local
+control "EmbarqueController" as C
+participant "EmbarqueService" as S
+entity "Presenca" as P
+database "PresencaRepository" as PRepo
 
-M -> App : Abre a lista de alunos embarcados
-App -> API : listarEmbarcados(rota)
-API -> DB : consultar alunos embarcados
-DB --> API : alunos
-API --> App : lista
-App --> M : Exibe os alunos embarcados
+M -> T : abrirAlunosEmbarcados(rotaId)
+T -> C : listarEmbarcados(rotaId)
+C -> S : listarEmbarcados(rotaId)
+S -> PRepo : buscarEmbarcados(rotaId)
+PRepo --> S : alunos embarcados
+S --> C : alunos embarcados
+C --> T : alunos embarcados
+T --> M : exibe os alunos embarcados
 
-M -> App : Seleciona o aluno e confirma o desembarque
-App -> App : captura data, horário e localização
-App -> API : registrarDesembarque(aluno, trajeto, data, horario, local)
-API -> DB : existe embarque no mesmo trajeto? (RN-011)
-DB --> API : resultado
+M -> T : confirmarDesembarque(alunoId)
+T -> T : captura data, horário e localização
 
-alt Caminho de sucesso — com embarque registrado e com conectividade
-    API -> DB : salvar desembarque e status = "desembarcado"
-    DB --> API : ok
+alt com conectividade
+    T -> C : registrarDesembarque(alunoId, dataHora, local)
+    C -> S : registrarDesembarque(alunoId, dataHora, local)
+    S -> PRepo : buscarPresenca(alunoId, rotaId)
+    PRepo --> S : presença
+    S -> P : possuiEmbarque() (RN-011)
+    P --> S : sim / não
 
-    ref over API, DB : «include» UC-I02 — Notificar Responsável sobre Embarque/Desembarque
+    alt Caminho de sucesso — embarque registrado no mesmo trajeto
+        S -> P : registrarDesembarque(dataHora, local) — status "desembarcado"
+        S -> PRepo : salvar(presenca)
+        PRepo --> S : presença salva
 
-    API --> App : desembarque registrado
-    App --> M : Confirma o registro
-else A1 — Sem conectividade (RN-015)
-    App -> App : armazena o registro localmente
-    App --> M : Registro salvo (pendente de sincronização)
+        ref over S, PRepo : «include» UC-I02 — Notificar Responsável sobre Embarque/Desembarque
+
+        S --> C : desembarque registrado
+        C --> T : desembarque registrado
+        T --> M : confirma o registro
+    else E1 — Sem embarque registrado (RN-011)
+        S --> C : desembarque não permitido
+        C --> T : desembarque não permitido
+        T --> M : informa o motivo
+    end
+else A1 — Sem conectividade (RNF-006)
+    T -> Local : guardar(registroDesembarque)
+    T --> M : registro salvo (pendente de sincronização)
     ... ao reconectar ...
-    App -> API : sincronizarRegistros()
-    API -> DB : salvar desembarque e status = "desembarcado"
-    ref over API, DB : «include» UC-I02
-else E1 — Sem embarque registrado
-    API --> App : desembarque não permitido
-    App --> M : Informa o motivo
+    Local -> C : sincronizar(registros)
+    C -> S : registrarDesembarque(alunoId, dataHora, local)
+    note right of S : segue a mesma validação do embarque (RN-011)\ne inclui UC-I02 após a sincronização
 end
 @enduml

@@ -1,37 +1,50 @@
 @startuml UC-S01
 title UC-S01 — Vincular Usuário à Empresa
 skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 autonumber
 
 actor "Responsável / Aluno" as U
-participant "App VanTrack" as App
-participant "Servidor" as API
-database "Banco de Dados" as DB
+boundary "TelaVinculo" as T
+control "VinculoController" as C
+participant "VinculoService" as S
+entity "CodigoAcesso" as Cod
+database "CodigoAcessoRepository" as CodRepo
+database "VinculoRepository" as VRepo
 
-U -> App : Escolhe "Vincular à empresa"
-App --> U : Solicita o código de vinculação
-U -> App : Informa o código
-App -> API : validarCodigo(codigo)
-API -> DB : buscarCodigo(codigo)
-DB --> API : dados do código
+U -> T : solicitarVinculo()
+T --> U : solicita o código de vinculação
+U -> T : informarCodigo(codigo)
+T -> C : vincular(usuarioId, codigo)
+C -> S : vincular(usuarioId, codigo)
+S -> CodRepo : buscarPorCodigo(codigo)
+CodRepo --> S : codigoAcesso
+S -> Cod : validar() (RN-001)
+Cod --> S : situação do código
 
 alt Caminho de sucesso — código válido e ativo
-    API -> DB : identificar empresa, van e/ou aluno do código
-    DB --> API : empresa, van, aluno
+    S -> Cod : obterDestino()
+    Cod --> S : empresa, van e/ou aluno
 
     opt A1 — Responsável com mais de um aluno
-        API -> DB : adicionar o novo aluno mantendo os vínculos anteriores
+        S -> VRepo : listarVinculos(usuarioId)
+        VRepo --> S : vínculos anteriores (mantidos)
     end
 
-    API -> DB : registrarVinculo(usuario, empresa, van, aluno)
-    DB --> API : ok
-    API --> App : vínculo criado
-    App --> U : Exibe a van/rota vinculada e libera as funcionalidades
+    create entity "Vinculo" as V
+    S -> V : new(usuario, empresa, van, aluno)
+    S -> VRepo : salvar(vinculo) (RN-002, RN-009)
+    VRepo --> S : vínculo salvo
+    S --> C : vínculo criado
+    C --> T : vinculoCriado(van, rota)
+    T --> U : exibe a van/rota vinculada e libera as funcionalidades
 else E1 — Código inválido
-    API --> App : erro "código inválido"
-    App --> U : Informa o erro e volta a solicitar o código
+    S --> C : erro "código inválido"
+    C --> T : vínculo recusado
+    T --> U : informa o erro e solicita o código novamente
 else E2 — Código expirado ou desativado
-    API --> App : erro "código expirado/desativado"
-    App --> U : Orienta a solicitar novo código à empresa
+    S --> C : erro "código expirado/desativado"
+    C --> T : vínculo recusado
+    T --> U : orienta a solicitar novo código à empresa
 end
 @enduml
