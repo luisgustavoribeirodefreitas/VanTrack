@@ -1,0 +1,762 @@
+"Issue ID","Parent ID","Issue Type","Summary","Description","Labels","Labels"
+"1","","Epic","UC-S05 Registrar Embarque (com UC-I02 e fluxo A1)","Implementar o caso de uso UC-S05 Registrar Embarque, com o include UC-I02 Notificar Responsável e o fluxo alternativo A1 (sem conectividade): interface gráfica (Flutter), back-end (API REST em Dart Frog) e banco de dados (PostgreSQL no Supabase).
+Planejamento: documentos/desenvolvimento/01-backlog-uc-s05.md
+Prompts: documentos/desenvolvimento/02-prompts-llm.md
+Entrega da disciplina: 02/12 às 19:31.","uc-s05",""
+"2","1","Story","[S0] Projeto da solução: diagrama de classes e arquitetura do UC-S05","Como equipe, queremos o diagrama de classes, as camadas e a estrutura de diretórios definidos antes de programar, para que todo o código siga o mesmo projeto (exigência da disciplina).","uc-s05","membro-b"
+"3","1","Story","[S1] Base do backend e dados de teste","Como equipe, queremos o servidor, o banco e os dados de teste prontos, para que todas as frentes trabalhem sobre a mesma base.","uc-s05","membro-a"
+"4","1","Story","[S2] Registrar o embarque no servidor","Como motorista, quero registrar que o aluno entrou na van, para que o embarque fique registrado com data, horário e local (RF-009, RN-010, RN-012).","uc-s05","membro-b"
+"5","1","Story","[S3] Notificar o responsável sobre o embarque (UC-I02)","Como responsável, quero ser avisado quando meu filho embarcar, para saber que ele está a caminho (RF-011, RN-002, RN-009).","uc-s05","membro-c"
+"6","1","Story","[S4] Tela do motorista para registrar o embarque (UC-R02)","Como motorista, quero registrar o embarque com um toque na tela da rota, sem navegar pelo app enquanto dirijo (RF-009, RNF-004, RNF-005).","uc-s05","membro-d"
+"7","1","Story","[S5] Registrar o embarque sem conexão (fluxo A1, RNF-006)","Como motorista, quero registrar o embarque mesmo sem sinal, para não ficar travado em trechos sem cobertura.","uc-s05","membro-e"
+"8","1","Story","[S6] Integração, testes de aceitação e documentação final","Como equipe, queremos o UC-S05 integrado, testado de ponta a ponta e com a documentação igual ao código, para a entrega de 02/12.","uc-s05",""
+"9","2","Subtask","[B-01] Identificar as classes e montar o diagrama de classes do UC-S05","A partir dos diagramas de sequência UC-S05, UC-R02 e UC-I02, do mapa de dados e do backlog, identificar as classes (tabela Classe | Camada | Responsabilidade | Atributos | Operações) e desenhar o diagrama de classes em PlantUML. Prompt 0, itens 1 e 2.
+
+Membro: B | Dia da sprint: 1 | Estimativa: 4 h
+Depende de: —
+Branch: task-<nº>-diagrama-classes-uc-s05
+
+Critérios de aceite:
+* Diagrama em documentos/desenvolvimento/scripts/diagrama-classes-uc-s05.puml, referenciado em 03-arquitetura.md
+* Atributos com visibilidade e tipo; operações com parâmetros e retorno
+* Relacionamentos e multiplicidades corretos, com as composições justificadas
+* Contratos de repositório separados das implementações Postgres
+* Entidades com comportamento (ex.: Presenca.registrarEmbarque, VinculoMotoristaVan.estaAtivo, Notificacao.deEmbarque)
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-1"
+"10","2","Subtask","[B-02] Definir a arquitetura em camadas e a estrutura de diretórios","Organizar as classes em apresentação, aplicação, domínio e infraestrutura, definir as dependências permitidas e a árvore de diretórios do backend e do app, e registrar as decisões arquiteturais. Prompt 0, itens 3, 4 e 7.
+
+Membro: B | Dia da sprint: 1 | Estimativa: 2 h
+Depende de: B-01
+Branch: task-<nº>-arquitetura-camadas-diretorios
+
+Critérios de aceite:
+* Cada camada com suas classes e as dependências permitidas e proibidas
+* Árvore de diretórios comentada do backend e do app, por funcionalidade com camadas internas, sem dependência circular entre módulos
+* Decisões arquiteturais justificadas
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-1"
+"11","2","Subtask","[B-03] Documentar as classes principais e a rastreabilidade até as classes","Documentar EmbarqueService, Presenca, NotificacaoService e ModuloEmbarque e montar a rastreabilidade RN -> RF -> UC -> classes e operações. Prompt 0, itens 5 e 6. Apresentar o diagrama para a equipe revisar no fim do Dia 1.
+
+Membro: B | Dia da sprint: 1 | Estimativa: 1 h
+Depende de: B-01
+Branch: task-<nº>-rastreabilidade-classes
+
+Critérios de aceite:
+* Tabela Classe | Responsabilidade | Operações | Dependências | RN | RF | UC
+* Rastreabilidade de RN-002, RN-009, RN-010, RN-012, RF-009, RF-011, RNF-005 e RNF-006
+* Diagrama revisado e aprovado pela equipe
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-1"
+"12","3","Subtask","[A-01] Criar o projeto Dart Frog conectado ao Supabase","Criar o projeto do servidor em backend/, na porta 8080, lendo DATABASE_URL de backend/.env, com a conexão com o Postgres na infraestrutura do módulo compartilhado. Prompt do Membro A, item 1.
+
+Membro: A | Dia da sprint: 1 | Estimativa: 2 h
+Depende de: —
+Branch: task-<nº>-projeto-backend
+
+Critérios de aceite:
+* `dart_frog dev` sobe o servidor e uma rota simples responde
+* backend/.env no .gitignore e backend/.env.example sem senha
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-1"
+"13","3","Subtask","[A-02] Liberar CORS para o Flutter Web","Middleware de CORS que libera qualquer origem em desenvolvimento e responde ao preflight OPTIONS. Prompt do Membro A, item 2.
+
+Membro: A | Dia da sprint: 1 | Estimativa: 1 h
+Depende de: A-01
+Branch: task-<nº>-cors
+
+Critérios de aceite:
+* O app Flutter rodando no navegador chama a API sem erro de CORS
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-1"
+"14","3","Subtask","[A-03] Criar as tabelas do banco (migration 001_base.sql)","Criar supabase/migrations/001_base.sql com as tabelas do mapa de dados usadas pelo UC-S05, mais a tabela sessao, com RLS ativado. Prompt do Membro A, item 3.
+
+Membro: A | Dia da sprint: 1 | Estimativa: 3 h
+Depende de: —
+Branch: task-<nº>-migration-base
+
+Critérios de aceite:
+* Roda sem erro em um projeto Supabase vazio
+* RLS ativado em todas as tabelas
+* registro_id do embarque é único; só um vínculo motorista–van ativo por van
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-1"
+"15","3","Subtask","[A-04] Criar os dados de teste (seed.sql)","Criar supabase/seed.sql exatamente como a seção 6 do backlog, com a rota sempre na data de hoje. Prompt do Membro A, item 4.
+
+Membro: A | Dia da sprint: 1–2 | Estimativa: 2 h
+Depende de: A-03
+Branch: task-<nº>-seed
+
+Critérios de aceite:
+* Ana, Beatriz e Carlos confirmados; Bruno ausente
+* Ana com 2 responsáveis; Carlos maior de idade sem responsável
+* Um motorista ativo na van e outro sem vínculo
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-1-2"
+"16","3","Subtask","[A-05] Criar o comando de reset do banco","Criar backend/bin/reset_db.dart, que apaga as tabelas, roda as migrations em ordem e o seed. Prompt do Membro A, item 5.
+
+Membro: A | Dia da sprint: 2 | Estimativa: 2 h
+Depende de: A-03, A-04
+Branch: task-<nº>-reset-db
+
+Critérios de aceite:
+* `dart run bin/reset_db.dart` funciona duas vezes seguidas sem erro
+* Roda todas as migrations da pasta, inclusive as dos outros membros
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-2"
+"17","3","Subtask","[A-06] Implementar as entidades de domínio do diagrama de classes","Criar as entidades Aluno, Responsavel, Motorista, Van, VinculoMotoristaVan, Rota, PontoParada, Presenca e Embarque com os atributos e operações do diagrama. Presenca.registrarEmbarque fica com UnimplementedError (é a task B-04). Prompt do Membro A, item 6.
+
+Membro: A | Dia da sprint: 2 | Estimativa: 3 h
+Depende de: B-01, A-01
+Branch: task-<nº>-entidades-dominio
+
+Critérios de aceite:
+* Nomes, atributos e operações iguais ao diagrama de classes
+* O domínio não importa dart_frog nem postgres
+* Teste de VinculoMotoristaVan.estaAtivo()
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-2"
+"18","3","Subtask","[A-07] Implementar PresencaRepository e VinculoRepository","Contratos no domínio e implementações Postgres na infraestrutura: presenças da rota em ordem, responsáveis de um aluno e motorista ativo de uma van. Prompt do Membro A, item 7.
+
+Membro: A | Dia da sprint: 2 | Estimativa: 3 h
+Depende de: A-06, A-03
+Branch: task-<nº>-repositorios-presenca-vinculo
+
+Critérios de aceite:
+* Contrato (classe abstrata) separado da implementação
+* Consultas testadas manualmente contra o seed
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-2"
+"19","3","Subtask","[A-08] Listar os alunos da rota (GET /rotas/{rotaId}/alunos)","Endpoint da seção 3 do backlog: rota HTTP -> Controller -> Service -> repositório. Prompt do Membro A, item 8.
+
+Membro: A | Dia da sprint: 3 | Estimativa: 3 h
+Depende de: A-07, C-02
+Branch: task-<nº>-listar-alunos-rota
+
+Critérios de aceite:
+* Só alunos CONFIRMADO ou EMBARCADO, na ordem da rota; Bruno (ausente) não aparece
+* Motorista sem vínculo com a van recebe 403 (RN-012)
+* Resposta no formato exato da seção 3; testes automatizados desses casos
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-3"
+"20","3","Subtask","[A-09] Escrever o README do backend","backend/README.md com instalação, configuração do .env, reset do banco e como subir o servidor. Prompt do Membro A, item 9.
+
+Membro: A | Dia da sprint: 3 | Estimativa: 1 h
+Depende de: A-05
+Branch: task-<nº>-readme-backend
+
+Critérios de aceite:
+* Outro membro consegue subir o backend do zero só seguindo o README
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-3"
+"21","4","Subtask","[B-04] Implementar Presenca.registrarEmbarque (RN-010)","Comportamento de domínio: a presença valida que está CONFIRMADO, muda para EMBARCADO e devolve o Embarque; senão lança exceção de domínio. Prompt do Membro B, item 1.
+
+Membro: B | Dia da sprint: 2 | Estimativa: 2 h
+Depende de: A-06
+Branch: task-<nº>-presenca-registrar-embarque
+
+Critérios de aceite:
+* Testes: CONFIRMADO embarca; AUSENTE e EMBARCADO lançam a exceção
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-2"
+"22","4","Subtask","[B-05] Criar o contrato NotificacaoService e a versão vazia","Contrato NotificacaoService com notificarMovimentacao e uma implementação vazia, para o EmbarqueService não esperar o UC-I02. Prompt do Membro B, item 4.
+
+Membro: B | Dia da sprint: 2 | Estimativa: 1 h
+Depende de: B-01
+Branch: task-<nº>-contrato-notificacao-service
+
+Critérios de aceite:
+* Arquivos separados no módulo notificacao, como no diagrama
+* Avisar o Membro C que o contrato está na main
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-2"
+"23","4","Subtask","[B-06] Implementar EmbarqueService.registrarEmbarque","Coordenar o caso de uso: motorista ativo (RN-012, 403), rota e aluno existem (404), presenca.registrarEmbarque com a hora do toque, salvar embarque e presença na mesma transação e chamar a notificação. Prompt do Membro B, item 3.
+
+Membro: B | Dia da sprint: 2–3 | Estimativa: 4 h
+Depende de: B-04, B-05, A-07
+Branch: task-<nº>-embarque-service
+
+Critérios de aceite:
+* Embarque salvo com a dataHora enviada pelo aparelho
+* Embarque e status salvos na mesma transação
+* NotificacaoService chamado depois de salvar
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-2-3"
+"24","4","Subtask","[B-07] Garantir a idempotência pelo registroId","Mesmo registroId recebido de novo devolve o resultado anterior (200) sem salvar nem notificar de novo, inclusive em requisições simultâneas. Prompt do Membro B, item 3.
+
+Membro: B | Dia da sprint: 3 | Estimativa: 2 h
+Depende de: B-06
+Branch: task-<nº>-idempotencia-registro-id
+
+Critérios de aceite:
+* Mesmo registroId duas vezes gera um único embarque e uma única notificação
+* Violação de unicidade do registro_id tratada como já processado
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-3"
+"25","4","Subtask","[B-08] Criar a rota POST /rotas/{rotaId}/embarques e o EmbarqueController","Rota do Dart Frog que chama o EmbarqueController; ele só converte JSON e exceções em códigos HTTP. Prompt do Membro B, item 2.
+
+Membro: B | Dia da sprint: 3 | Estimativa: 2 h
+Depende de: B-06, C-02
+Branch: task-<nº>-rota-registrar-embarque
+
+Critérios de aceite:
+* Respostas 201, 200, 403, 404 e 409 como na seção 3 do backlog
+* Controller sem regra de negócio e sem acesso a repositório
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-3"
+"26","4","Subtask","[B-09] Criar a rota de sincronização em lote","POST /rotas/{rotaId}/embarques/sincronizar processa cada registro com o mesmo EmbarqueService e devolve o resultado por registroId. Prompt do Membro B, item 5.
+
+Membro: B | Dia da sprint: 3 | Estimativa: 2 h
+Depende de: B-08
+Branch: task-<nº>-rota-sincronizar-embarques
+
+Critérios de aceite:
+* Um registro com erro não impede os outros
+* Resposta com o código de cada registroId
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-3"
+"27","4","Subtask","[B-10] Testes unitários do EmbarqueService","Testes com mocktail, sem banco: uma linha da tabela de respostas da seção 3 por teste, idempotência e hora do toque. Prompt do Membro B, item 6.
+
+Membro: B | Dia da sprint: 4 | Estimativa: 3 h
+Depende de: B-07
+Branch: task-<nº>-testes-embarque-service
+
+Critérios de aceite:
+* Todos os testes passam com `dart test`
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-4"
+"28","4","Subtask","[B-11] Trocar a notificação vazia pela implementação real","Registrar o NotificacaoService real do Membro C no lugar do NotificacaoServiceVazio.
+
+Membro: B | Dia da sprint: 4 | Estimativa: 1 h
+Depende de: C-04
+Branch: task-<nº>-ligar-notificacao-real
+
+Critérios de aceite:
+* Embarque pela API cria as notificações dos responsáveis no banco
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-4"
+"29","5","Subtask","[C-01] Criar a tabela de notificação (migration 002)","supabase/migrations/002_notificacao.sql com RLS ativado. Prompt do Membro C, item 1.
+
+Membro: C | Dia da sprint: 1 | Estimativa: 1 h
+Depende de: A-03
+Branch: task-<nº>-migration-notificacao
+
+Critérios de aceite:
+* Roda depois da 001 pelo comando de reset
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-1"
+"30","5","Subtask","[C-02] Login simplificado: GET /usuarios, POST /login e autenticação","Listar os usuários do seed, login pelo id e papel devolvendo um token salvo na tabela sessao, e middleware que identifica o usuário e o papel. O login é só apoio: não é o caso de uso avaliado. Prompt do Membro C, item 2.
+
+Membro: C | Dia da sprint: 1–2 | Estimativa: 3 h
+Depende de: A-01, A-03
+Branch: task-<nº>-login-simplificado
+
+Critérios de aceite:
+* Sem token válido -> 401
+* As rotas conseguem saber quem é o usuário logado e se é MOTORISTA ou RESPONSAVEL
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-1-2"
+"31","5","Subtask","[C-03] Implementar a entidade Notificacao e o NotificacaoRepository","Notificacao.deEmbarque monta a mensagem com a hora do embarque em horário de Brasília; marcarComoLida. Contrato no domínio e implementação Postgres. Prompt do Membro C, item 3.
+
+Membro: C | Dia da sprint: 2 | Estimativa: 3 h
+Depende de: B-01, C-01
+Branch: task-<nº>-entidade-notificacao
+
+Critérios de aceite:
+* Mensagem ""<aluno> embarcou na van às HH:MM."" com a hora do embarque (UTC-3)
+* Teste da fábrica deEmbarque
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-2"
+"32","5","Subtask","[C-04] Implementar o NotificacaoService real (UC-I02)","Buscar os responsáveis do aluno, criar uma notificação por responsável e tratar o fluxo A1 (aluno sem responsável). Prompt do Membro C, item 4.
+
+Membro: C | Dia da sprint: 2–3 | Estimativa: 3 h
+Depende de: C-03, B-05, A-07
+Branch: task-<nº>-notificacao-service
+
+Critérios de aceite:
+* Ana -> 2 notificações; Carlos -> 0, sem erro
+* Testes com mocktail
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-2-3"
+"33","5","Subtask","[C-05] Criar GET /notificacoes e PATCH /notificacoes/{id}/lida","Rotas HTTP -> Controller -> Service, só com notificações do usuário logado (RN-002). Prompt do Membro C, item 5.
+
+Membro: C | Dia da sprint: 3 | Estimativa: 3 h
+Depende de: C-03, C-02
+Branch: task-<nº>-rotas-notificacoes
+
+Critérios de aceite:
+* Responsável não vê nem marca notificação de outra família
+* Filtro desde={dataHora} funcionando
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-3"
+"34","5","Subtask","[C-06] Criar a tela ""Avisos"" do responsável","Tela do módulo avisos conforme a seção 10 do backlog: card por aluno com status e lista de avisos do dia. Prompt do Membro C, item 6.
+
+Membro: C | Dia da sprint: 4 | Estimativa: 5 h
+Depende de: D-02, C-05
+Branch: task-<nº>-tela-avisos
+
+Critérios de aceite:
+* Layout e textos iguais à seção 10
+* Estado vazio com a mensagem do backlog
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-4"
+"35","5","Subtask","[C-07] Atualizar os avisos sozinho, tratar sem conexão e marcar como lido","Timer.periodic a cada ~10 s, ""Atualizado há X s"", faixa de sem conexão mantendo os últimos avisos (RNF-003) e marcar como lidos ao exibir. Prompt do Membro C, itens 7 e 8.
+
+Membro: C | Dia da sprint: 4 | Estimativa: 3 h
+Depende de: C-06
+Branch: task-<nº>-avisos-atualizacao
+
+Critérios de aceite:
+* Aviso aparece em até ~10 s depois do embarque
+* Sem rede, a tela mostra a faixa e não apaga os avisos
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-4"
+"36","6","Subtask","[D-01] Criar o projeto Flutter com os módulos","Projeto Flutter em app/ rodando no Android e na Web, com as pastas compartilhado/, login/, embarque/ e avisos/ do documento de arquitetura. Pode começar antes da B-02 e ajustar as pastas depois. Prompt do Membro D, item 1.
+
+Membro: D | Dia da sprint: 1 | Estimativa: 2 h
+Depende de: B-02
+Branch: task-<nº>-projeto-app
+
+Critérios de aceite:
+* `flutter run` funciona no Android (ou emulador) e no Chrome
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-1"
+"37","6","Subtask","[D-02] Cliente da API, sessão do usuário e modo mock","Cliente HTTP com API_URL e token, sessão do usuário logado, cores do app e dados mockados com USE_MOCK=true. Prompt do Membro D, item 2.
+
+Membro: D | Dia da sprint: 1–2 | Estimativa: 3 h
+Depende de: D-01
+Branch: task-<nº>-cliente-api-mock
+
+Critérios de aceite:
+* Com USE_MOCK=true o app funciona sem backend
+* Mocks no formato da seção 3 com os alunos do seed
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-1-2"
+"38","6","Subtask","[D-03] Criar a tela de login","Lista os usuários e entra com um toque; motorista vai para a Rota do dia e responsável para Avisos. Prompt do Membro D, item 3.
+
+Membro: D | Dia da sprint: 2 | Estimativa: 2 h
+Depende de: D-02
+Branch: task-<nº>-tela-login
+
+Critérios de aceite:
+* Login funciona com mock e com a API (C-02)
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-2"
+"39","6","Subtask","[D-04] Criar o contrato ModuloEmbarque e o ModuloEmbarqueOnline","Classe abstrata e tipos exatamente como a seção 3 do backlog, e a implementação só online (GPS com limite de 2 s). Desbloqueia o Membro E. Prompt do Membro D, item 4.
+
+Membro: D | Dia da sprint: 2 | Estimativa: 3 h
+Depende de: D-02
+Branch: task-<nº>-modulo-embarque-online
+
+Critérios de aceite:
+* Contrato idêntico ao do backlog
+* O toque nunca espera mais de 2 s pelo GPS
+* Implementação escolhida em um único lugar no main.dart
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-2"
+"40","6","Subtask","[D-05] Montar a tela ""Rota do dia""","Layout da seção 10: cabeçalho, próxima parada com botão grande, Depois, Na van e o widget FaixaSemConexao (pronto e escondido). Prompt do Membro D, item 5.
+
+Membro: D | Dia da sprint: 2–3 | Estimativa: 5 h
+Depende de: D-02
+Branch: task-<nº>-tela-rota-do-dia
+
+Critérios de aceite:
+* Botão ""Embarcou"" de largura total e no mínimo 56 de altura (RNF-005)
+* Status sempre com cor, ícone e texto
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-2-3"
+"41","6","Subtask","[D-06] Registrar o embarque com um toque e tratar os estados","Um toque registra sem diálogo; o aluno muda de seção na hora e a próxima parada é destacada; pendente em âmbar; mensagens de carregando, 403, 409, vazia e erro; escutar aoMudarPendentes. Prompt do Membro D, item 5.
+
+Membro: D | Dia da sprint: 3 | Estimativa: 3 h
+Depende de: D-04, D-05
+Branch: task-<nº>-toque-embarcou-estados
+
+Critérios de aceite:
+* Testes de aceitação 1, 2 e 6 da seção 7 passam com mock
+* Textos iguais aos da seção 10
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-3"
+"42","6","Subtask","[D-07] Ligar o app do motorista à API real","Trocar os mocks pela API real no fluxo do motorista e acertar as diferenças.
+
+Membro: D | Dia da sprint: 3 | Estimativa: 2 h
+Depende de: A-08, B-08, C-02
+Branch: task-<nº>-integracao-api-motorista
+
+Critérios de aceite:
+* Login, lista da rota e embarque funcionando contra o backend local
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-3"
+"43","6","Subtask","[D-08] Testes de widget da tela ""Rota do dia""","Testes com um ModuloEmbarque falso. Prompt do Membro D, item 7.
+
+Membro: D | Dia da sprint: 4 | Estimativa: 3 h
+Depende de: D-06
+Branch: task-<nº>-testes-tela-rota
+
+Critérios de aceite:
+* Tocar ""Embarcou"" move o aluno e destaca a próxima parada
+* Status pendente mostra o ícone âmbar; `flutter test` passa
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-d","dia-4"
+"44","7","Subtask","[E-01] Criar a fila persistente (ArmazenamentoLocal)","Fila de registros em JSON no shared_preferences, que funciona no Android e na Web. Prompt do Membro E, item 1.
+
+Membro: E | Dia da sprint: 1–2 | Estimativa: 3 h
+Depende de: D-01
+Branch: task-<nº>-armazenamento-local
+
+Critérios de aceite:
+* A fila sobrevive a fechar e abrir o app
+* Testes com SharedPreferences.setMockInitialValues
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-1-2"
+"45","7","Subtask","[E-02] Detectar a conectividade","connectivity_plus + timeout de 5 s e erro de rede tratados como offline, expostos em um ValueNotifier<bool>. Prompt do Membro E, item 2.
+
+Membro: E | Dia da sprint: 2 | Estimativa: 3 h
+Depende de: D-01
+Branch: task-<nº>-deteccao-conectividade
+
+Critérios de aceite:
+* Modo avião é detectado no Android
+* Na Web, falha de rede na chamada conta como offline
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-2"
+"46","7","Subtask","[E-03] Criar o ModuloEmbarqueComFila","Nova implementação do contrato ModuloEmbarque: online envia, offline ou erro de rede vai para a fila e devolve pendente; 403/404/409 viram EmbarqueException. Prompt do Membro E, item 3.
+
+Membro: E | Dia da sprint: 3 | Estimativa: 4 h
+Depende de: D-04, E-01, E-02
+Branch: task-<nº>-modulo-embarque-com-fila
+
+Critérios de aceite:
+* Contrato do backlog não foi alterado
+* Hora e localização capturadas no momento do toque
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-3"
+"47","7","Subtask","[E-04] Sincronizar automaticamente ao reconectar","Enviar a fila para a rota de sincronização, remover só o que o servidor confirmou, avisar rejeitados no aoMudarPendentes, tentar a cada 30 s e ao abrir o app, sem sincronizações simultâneas. Prompt do Membro E, itens 4 e 5.
+
+Membro: E | Dia da sprint: 3–4 | Estimativa: 5 h
+Depende de: E-03, B-09
+Branch: task-<nº>-sincronizacao-automatica
+
+Critérios de aceite:
+* Pendentes sincronizados em até 5 min após reconectar (RNF-006)
+* Falha no meio não perde nem duplica registros
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-3-4"
+"48","7","Subtask","[E-05] Ativar o modo offline no app e a faixa ""Sem conexão""","Trocar no main.dart para ModuloEmbarqueComFila e ligar a FaixaSemConexao à detecção de rede. Prompt do Membro E, item 6.
+
+Membro: E | Dia da sprint: 4 | Estimativa: 2 h
+Depende de: E-04, D-05
+Branch: task-<nº>-ativar-modo-offline
+
+Critérios de aceite:
+* Testes de aceitação 8, 9 e 10 da seção 7 passam no Android
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-4"
+"49","7","Subtask","[E-06] Testes do módulo offline","MockClient, conectividade falsa e SharedPreferences em memória. Prompt do Membro E, item 7.
+
+Membro: E | Dia da sprint: 4 | Estimativa: 4 h
+Depende de: E-04
+Branch: task-<nº>-testes-modo-offline
+
+Critérios de aceite:
+* Todos os casos do item 7 do prompt cobertos; `flutter test` passa
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-4"
+"50","8","Subtask","[A-10] Integrar na main e preparar o ambiente da demo","Acompanhar os merges na main, configurar o projeto Supabase compartilhado com o reset e garantir que backend e app rodam juntos a partir da main.
+
+Membro: A | Dia da sprint: 4–5 | Estimativa: 3 h
+Depende de: —
+Branch: task-<nº>-integracao-ambiente-demo
+
+Critérios de aceite:
+* Main sobe do zero (reset do banco, backend e app) seguindo os READMEs
+* Projeto Supabase da demo com o seed aplicado
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-4-5"
+"51","8","Subtask","[A-11] Executar os testes de aceitação e registrar os bugs","Executar com a equipe os 10 testes da seção 7 do backlog e registrar o resultado em documentos/desenvolvimento/05-testes-aceitacao.md. Cada falha vira um Bug no Jira.
+
+Membro: A | Dia da sprint: 5 | Estimativa: 3 h
+Depende de: A-10
+Branch: task-<nº>-testes-aceitacao
+
+Critérios de aceite:
+* Resultado dos 10 testes documentado
+* Bugs abertos no Jira para cada falha
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-5"
+"52","8","Subtask","[B-12] Atualizar o diagrama de classes e a arquitetura com o código real","Comparar o código com 03-arquitetura.md, listar diferenças e atualizar diagrama, árvore de diretórios real e rastreabilidade. Prompt final, itens 1 a 3.
+
+Membro: B | Dia da sprint: 6 | Estimativa: 3 h
+Depende de: A-10
+Branch: task-<nº>-diagrama-classes-final
+
+Critérios de aceite:
+* Diagrama, árvore de diretórios e rastreabilidade iguais ao código da main
+* Diferenças que exigem mudar código registradas como Bug
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-b","dia-6"
+"53","8","Subtask","[E-07] Revisar os artefatos do 1º bimestre","Atualizar o que a implementação mudou: mapa de dados (sessão, registro_id), diagramas de sequência UC-S05 e UC-I02 e regras/requisitos afetados (""melhorias em todo o projeto""). Prompt final, item 4.
+
+Membro: E | Dia da sprint: 6 | Estimativa: 2 h
+Depende de: B-12
+Branch: task-<nº>-revisao-artefatos-1-bim
+
+Critérios de aceite:
+* Documentos do 1º bimestre coerentes com o código e o diagrama de classes
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-e","dia-6"
+"54","8","Subtask","[C-08] Roteiro da demo e evidências do Jira","Roteiro da apresentação baseado nos testes de aceitação e prints do Jira (backlog, sprint, quadro, epic/stories) para a pasta de evidências.
+
+Membro: C | Dia da sprint: 6–7 | Estimativa: 2 h
+Depende de: A-11
+Branch: task-<nº>-roteiro-demo
+
+Critérios de aceite:
+* Roteiro em documentos/desenvolvimento/06-roteiro-demo.md
+* Prints do Jira da sprint salvos
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-c","dia-6-7"
+"55","8","Subtask","[A-12] Conferir as exigências da disciplina para a entrega","Conferir a seção 11 do backlog e o que falta para 02/12 às 19:31. Prompt final, item 5.
+
+Membro: A | Dia da sprint: 7 | Estimativa: 1 h
+Depende de: B-12, E-07, C-08
+Branch: task-<nº>-checklist-entrega
+
+Critérios de aceite:
+* Todas as linhas da seção 11 atendidas ou com responsável e prazo
+
+Definição de pronto:
+* Código segue o diagrama de classes e as camadas de 03-arquitetura.md
+* Testes da task escritos e passando
+* Classes principais com comentário de responsabilidade e RN/RF/UC
+* PR da branch revisado e aprovado por outro membro antes do merge na main
+* Critérios de aceite conferidos por quem revisou","membro-a","dia-7"
